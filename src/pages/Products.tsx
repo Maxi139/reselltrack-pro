@@ -42,6 +42,7 @@ type MarkSoldPayload = {
 export default function Products() {
   const { user, isDemoMode } = useAuthStore();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   
   const [filters, setFilters] = useState<ProductFilters>({
     status: 'all',
@@ -109,6 +110,11 @@ export default function Products() {
   };
 
   const handleDelete = (productId: string) => {
+    if (isDemoMode) {
+      handleDemoAction('Deleting products');
+      return;
+    }
+
     if (window.confirm('Are you sure you want to delete this product?')) {
       deleteMutation.mutate(productId);
     }
@@ -310,8 +316,16 @@ export default function Products() {
                 <option value="status">Status</option>
               </select>
             </div>
+            <button
+              type="button"
+              onClick={startProductFlow}
+              className="mt-6 inline-flex items-center justify-center rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+            >
+              Flow öffnen
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </button>
           </div>
-        </div>
+        </section>
 
         <div className="mt-6">
           {filteredProducts.length > 0 ? (
@@ -415,10 +429,12 @@ export default function Products() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
-              <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {isDemoMode ? 'No demo products available' : 'No products found'}
+            <div className="rounded-[32px] border border-dashed border-white/20 bg-white/5 p-10 text-center text-white/80">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white/10 text-white">
+                <DollarSign className="h-8 w-8" />
+              </div>
+              <h3 className="mt-6 text-3xl font-semibold text-white">
+                {isDemoMode ? 'Demo-Inventar wird geladen' : 'Starte deine erste Produktreihe'}
               </h3>
               <p className="text-gray-500 mb-6">
                 {isDemoMode
@@ -484,4 +500,5 @@ export default function Products() {
       )}
     </div>
   );
+
 }

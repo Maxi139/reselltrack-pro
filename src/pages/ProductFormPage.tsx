@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import ProductForm from '../components/ProductForm';
@@ -10,9 +10,13 @@ import { ROUTES } from '../routes';
 export default function ProductFormPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const isEditing = !!id;
+  const searchParams = new URLSearchParams(location.search);
+  const templateId = searchParams.get('template');
+  const isDuplicating = !!templateId && !isEditing;
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', id],
@@ -23,6 +27,17 @@ export default function ProductFormPage() {
       return data;
     },
     enabled: !!id
+  });
+
+  const { data: templateProduct, isLoading: isTemplateLoading } = useQuery({
+    queryKey: ['product-template', templateId],
+    queryFn: async () => {
+      if (!templateId) return null;
+      const { data, error } = await dbHelpers.getProduct(templateId);
+      if (error) throw error;
+      return data;
+    },
+    enabled: isDuplicating
   });
 
   const createMutation = useMutation({
@@ -99,7 +114,18 @@ export default function ProductFormPage() {
     navigate(ROUTES.dashboardProducts);
   };
 
-  if (isEditing && isLoading) {
+  const initialProduct = useMemo(() => {
+    if (product) return product;
+    if (templateProduct) {
+      return {
+        ...templateProduct,
+        name: templateProduct.name ? `${templateProduct.name} (copy)` : ''
+      };
+    }
+    return null;
+  }, [product, templateProduct]);
+
+  if ((isEditing && isLoading) || (isDuplicating && isTemplateLoading)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -112,11 +138,7 @@ export default function ProductFormPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProductForm
-        product={product}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-      />
+      <ProductForm product={initialProduct ?? undefined} onSubmit={handleSubmit} onCancel={handleCancel} />
     </div>
   );
 }

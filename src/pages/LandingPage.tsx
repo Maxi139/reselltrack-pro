@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { ROUTES } from '../routes'
 
 export default function LandingPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -37,14 +37,30 @@ export default function LandingPage() {
                 Start Free Trial
               </Link>
             </div>
+          </Link>
 
-            {/* Mobile Menu Button */}
-            <button
-              className="md:hidden p-2 text-gray-600 hover:text-primary-500"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+          <nav className="hidden items-center gap-8 md:flex">
+            <a href="#flow" className="text-sm text-slate-200 transition hover:text-white">
+              Flow
+            </a>
+            <a href="#features" className="text-sm text-slate-200 transition hover:text-white">
+              Features
+            </a>
+            <a href="#pricing" className="text-sm text-slate-200 transition hover:text-white">
+              Preise
+            </a>
+          </nav>
+
+          <div className="hidden items-center gap-3 md:flex">
+            <Link to={ROUTES.auth} className="text-sm text-slate-200 transition hover:text-white">
+              Login
+            </Link>
+            <Link
+              to={ROUTES.auth}
+              className="inline-flex items-center rounded-2xl bg-gradient-to-r from-emerald-400 to-sky-400 px-5 py-2 text-sm font-semibold text-slate-900"
             >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
+              Jetzt starten
+            </Link>
           </div>
 
           {/* Mobile Menu */}
@@ -67,7 +83,6 @@ export default function LandingPage() {
             </motion.div>
           )}
         </div>
-      </header>
 
       {/* Hero Section */}
       <section className="bg-white">
@@ -84,6 +99,10 @@ export default function LandingPage() {
                   The all-in-one platform for resellers. Track inventory, manage customers, and grow your business with powerful analytics and automation.
                 </p>
               </div>
+            </div>
+          </div>
+        )}
+      </header>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
@@ -105,19 +124,13 @@ export default function LandingPage() {
                   <div className="text-2xl font-bold text-gray-900">$15,750</div>
                   <div className="text-sm text-gray-600">Monthly Revenue</div>
                 </div>
-                <div className="text-center">
-                  <div className="flex justify-center mb-2">
-                    <TrendingUp className="w-8 h-8 text-success-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">$3,240</div>
-                  <div className="text-sm text-gray-600">Total Profit</div>
+                <div>
+                  <p className="text-3xl font-semibold text-white">120+</p>
+                  <p>Produkte im Flow</p>
                 </div>
-                <div className="text-center">
-                  <div className="flex justify-center mb-2">
-                    <Package className="w-8 h-8 text-primary-500" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900">25</div>
-                  <div className="text-sm text-gray-600">Products Tracked</div>
+                <div>
+                  <p className="text-3xl font-semibold text-white">24/7</p>
+                  <p>Support & Guides</p>
                 </div>
               </div>
             </div>
@@ -145,8 +158,11 @@ export default function LandingPage() {
                       <span className="font-medium">AirPods Pro</span>
                       <span className="text-green-300">+$95</span>
                     </div>
-                    <div className="text-sm opacity-80">Sold for $279 • Profit Margin: 34%</div>
-                  </div>
+                  ))}
+                </div>
+                <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
+                  <p className="font-semibold text-white">Demo-Modus aktiv</p>
+                  <p className="text-xs">Keine Sorge: In Demo-Accounts bleiben alle Aktionen geschützt.</p>
                 </div>
               </div>
             </div>
@@ -165,6 +181,7 @@ export default function LandingPage() {
               From inventory tracking to customer management, we've got you covered with powerful tools designed specifically for resellers.
             </p>
           </div>
+        </section>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Feature 1 */}
@@ -216,10 +233,13 @@ export default function LandingPage() {
               <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
                 <Star className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Customer Management</h3>
-              <p className="text-gray-600">
-                Keep track of your customers, their preferences, and purchase history. Build lasting relationships.
-              </p>
+              <Link
+                to={ROUTES.dashboardProductNew}
+                className="inline-flex items-center rounded-2xl border border-white/30 px-6 py-3 text-sm font-semibold text-white"
+              >
+                Flow testen
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
 
             {/* Feature 6 */}
@@ -233,8 +253,7 @@ export default function LandingPage() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Testimonials Section */}
       <section id="testimonials" className="py-16 sm:py-24 bg-white">
@@ -247,6 +266,29 @@ export default function LandingPage() {
               Join thousands of resellers who have transformed their business with ResellTrack Pro
             </p>
           </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {features.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={feature.title}
+                  whileHover={{ y: -4 }}
+                  className="rounded-[28px] border border-white/10 bg-white/5 p-6"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="rounded-2xl bg-white/10 p-3">
+                      <Icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-white">{feature.title}</h3>
+                      <p className="text-sm text-slate-200">{feature.description}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </section>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Testimonial 1 */}
@@ -310,10 +352,9 @@ export default function LandingPage() {
                   <div className="text-sm text-gray-600">Electronics Reseller</div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Pricing Section */}
       <section id="pricing" className="py-16 sm:py-24 bg-gray-50">
@@ -396,31 +437,10 @@ export default function LandingPage() {
                 <div className="text-4xl font-bold text-gray-900 mb-1">$99</div>
                 <div className="text-gray-600">per month</div>
               </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Unlimited products
-                </li>
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Custom integrations
-                </li>
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Dedicated support
-                </li>
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Advanced security
-                </li>
-              </ul>
-              <button className="w-full btn-secondary">
-                Contact Sales
-              </button>
-            </div>
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       {/* CTA Section */}
       <section className="py-16 sm:py-24 bg-gradient-primary">
@@ -491,5 +511,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

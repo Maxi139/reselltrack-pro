@@ -12,7 +12,7 @@ const priceField = z.preprocess((value) => {
 }, z.number().positive('Price must be positive').optional())
 
 const productSchema = z.object({
-  name: z.string().min(1, 'Product name is required').max(100, 'Name too long'),
+  name: z.string().min(1, 'Product name is required').max(120, 'Name too long'),
   description: z.string().max(500, 'Description too long').optional(),
   category: z.string().min(1, 'Category is required'),
   listing_price: priceField,
@@ -67,6 +67,12 @@ const stepFieldMap: Record<number, (keyof ProductFormData)[]> = {
   2: ['platform', 'status', 'listing_price', 'purchase_price', 'notes']
 }
 
+const stepFieldMap: Record<number, (keyof ProductFormData)[]> = {
+  1: ['name'],
+  2: [],
+  3: []
+};
+
 export default function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(product?.image_url ?? null)
@@ -107,6 +113,10 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
       reader.readAsDataURL(file)
     }
   }
+
+  const handleSkip = () => {
+    setActiveStep((prev) => Math.min(prev + 1, steps.length));
+  };
 
   const onFormSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true)
