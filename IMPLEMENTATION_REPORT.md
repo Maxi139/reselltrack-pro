@@ -6,6 +6,13 @@ Diese Dokumentation beschreibt die umfassende Überarbeitung der Homepage und Ve
 
 ## Durchgeführte Arbeiten
 
+### Modernisierte Produkt Experience (✅ Neu)
+
+- Neue Inventory-Übersichtsseite mit glasigen Stat-Karten, pill-basierten Quick-Filtern und responsiven Produktkarten. Die CTA "Plan pickup" führt direkt zu Meetings und der Primary-CTA ist jetzt ein leuchtender Gradient-Button.
+- Produktliste enthält jetzt einen klaren Flow zum "Als verkauft" markieren. Ein Fokus-Dialog sammelt Verkaufspreis + Datum, berechnet die Marge automatisch und erklärt Demo-Benutzer:innen, warum Aktionen gesperrt sind.
+- Quick Actions (View, Edit, Delete, Mark sold) erhielten größere Touch-Zonen, Fokus-Ringe und Kontextfarben. Leere Zustände motivieren zum Hinzufügen von Artikeln ohne sofortigen Verkaufspreis.
+- Der Produkt-Formular-Dialog nutzt nun einen 2-stufigen Flow (Details → Pricing), optionale Preisfelder und moderne Komponenten (Step-Indicator, weiche Karten, neue Notes-Sektion). Listing- und Purchase-Preis werden nur gespeichert, wenn angegeben.
+
 ### 1. Layout-Anpassungen (✅ Abgeschlossen)
 
 **Problem:** Ausschließlich linksorientierte Ausrichtung der Inhalte

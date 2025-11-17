@@ -32,11 +32,13 @@ export default function ProductFormPage() {
       const productData = {
         ...formData,
         user_id: user.id,
+        listing_price: formData.listing_price ?? null,
+        purchase_price: formData.purchase_price ?? null,
         tags: formData.tags ? formData.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [],
-        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price 
-          ? formData.listing_price - formData.purchase_price 
+        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price
+          ? formData.listing_price - formData.purchase_price
           : null,
-        sold_price: formData.status === 'sold' ? formData.listing_price : null
+        sold_price: formData.status === 'sold' && formData.listing_price ? formData.listing_price : null
       };
 
       const { error } = await dbHelpers.createProduct(productData);
@@ -60,11 +62,13 @@ export default function ProductFormPage() {
       
       const productData = {
         ...formData,
+        listing_price: formData.listing_price ?? null,
+        purchase_price: formData.purchase_price ?? null,
         tags: formData.tags ? formData.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [],
-        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price 
-          ? formData.listing_price - formData.purchase_price 
+        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price
+          ? formData.listing_price - formData.purchase_price
           : null,
-        sold_price: formData.status === 'sold' ? formData.listing_price : null
+        sold_price: formData.status === 'sold' && formData.listing_price ? formData.listing_price : null
       };
 
       const { error } = await dbHelpers.updateProduct(id, productData);
