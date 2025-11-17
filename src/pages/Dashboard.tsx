@@ -146,7 +146,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-dark-900 dark:to-dark-800 animate-pulse">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-6 xl:py-8">
           <div className="h-10 bg-slate-200 dark:bg-dark-700 rounded-xl w-1/3 mb-8 animate-pulse"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {[1, 2, 3, 4].map(i => (
               <div key={i} className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-2xl shadow-glass p-6 border border-white/30 dark:border-dark-700/50">
                 <div className="h-5 bg-slate-200 dark:bg-dark-700 rounded-lg w-2/3 mb-4 animate-pulse"></div>
@@ -206,7 +206,7 @@ export default function Dashboard() {
         )}
 
         {/* Stats Grid */}
-        <div id="stats-grid" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div id="stats-grid" className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             const colorClasses = {
