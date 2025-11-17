@@ -77,14 +77,19 @@ export default function Layout() {
       {/* Sidebar */}
       <div
         id="dashboard-sidebar"
-        className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transition-transform duration-300 ease-in-out focus:outline-none`}
+        className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:shadow-none lg:border-r lg:border-gray-200`}
       >
         <div className="flex flex-col h-full">
           {/* Logo and close button */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <Link to={ROUTES.dashboard} className="flex items-center space-x-2">
-              <TrendingUp className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">ResellTrack</span>
+            <Link to={ROUTES.dashboard} className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <span className="text-xl font-bold text-gray-900">ResellTrack</span>
+                <p className="text-xs text-gray-500">Pro Dashboard</p>
+              </div>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -96,20 +101,31 @@ export default function Layout() {
           </div>
 
           {/* User info */}
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <User className="h-5 w-5 text-blue-600" />
+          <div className="p-6 border-b border-gray-200 bg-gradient-to-br from-gray-50 to-blue-50">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center shadow-sm">
+                <User className="h-6 w-6 text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
-                <p className="text-xs text-gray-500">{subscriptionLabel} Plan</p>
+                <p className="text-sm font-semibold text-gray-900 truncate">{userName}</p>
+                <p className="text-xs text-gray-600">{subscriptionLabel} Plan</p>
+                <div className="mt-1">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                    isDemoMode ? 'bg-blue-100 text-blue-800' :
+                    subscriptionTier === 'pro' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {subscriptionLabel}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
+          <nav className="flex-1 p-4 space-y-1">
+            <div className="px-3 py-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Navigation</h3>
+            </div>
             {navigation.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
@@ -121,24 +137,32 @@ export default function Layout() {
                       item.name.toLowerCase() === 'meetings' ? 'meetings-link' : undefined}
                   to={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
                     active
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm border border-blue-200'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
+                  <Icon className={`h-5 w-5 ${active ? 'text-blue-600' : ''}`} />
                   <span>{item.name}</span>
+                  {active && (
+                    <div className="ml-auto">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    </div>
+                  )}
                 </Link>
               );
             })}
           </nav>
 
           {/* Sign out button */}
-          <div className="p-4 border-t border-gray-200">
+          <div className="p-4 border-t border-gray-200 bg-gray-50">
+            <div className="px-3 py-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Account</h3>
+            </div>
             <button
               onClick={handleSignOut}
-              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 w-full"
+              className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 w-full transition-all duration-200"
             >
               <LogOut className="h-5 w-5" />
               <span>Sign Out</span>

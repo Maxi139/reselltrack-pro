@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, TrendingUp, Calendar, Package, Users, DollarSign, Target, Clock, ArrowRight } from 'lucide-react';
+import { Plus, TrendingUp, Calendar, Package, Users, DollarSign, Target, Clock, ArrowRight, TrendingDown, BarChart3 } from 'lucide-react';
 import { supabase, dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import TutorialOverlay from '../components/TutorialOverlay';
+import DashboardChart from '../components/DashboardChart';
 import { ROUTES } from '../routes';
 import { notifyDemoRestriction } from '../utils/demoMode';
 
@@ -93,12 +94,24 @@ export default function Dashboard() {
     enabled: !!user?.id
   });
 
+  // Calculate proper percentage changes based on actual data
+  const calculateChange = (current: number, previous: number): string => {
+    if (previous === 0) return current > 0 ? '+100%' : '0%';
+    const change = ((current - previous) / previous) * 100;
+    return change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
+  };
+
+  // Get previous month data from trends (mock calculation)
+  const previousMonthProducts = (stats?.monthlyTrend?.products?.[4] || 0);
+  const previousMonthMeetings = (stats?.monthlyTrend?.meetings?.[4] || 0);
+  const previousMonthRevenue = (stats?.monthlyTrend?.revenue?.[4] || 0);
+
   const statCards = [
     {
       title: 'Total Products',
       value: stats?.totalProducts || 0,
       icon: Package,
-      change: '+12%',
+      change: stats?.totalProducts ? calculateChange(stats.totalProducts, previousMonthProducts) : '0%',
       changeType: 'positive' as const,
       color: 'blue'
     },
@@ -106,7 +119,7 @@ export default function Dashboard() {
       title: 'Active Meetings',
       value: stats?.activeMeetings || 0,
       icon: Calendar,
-      change: '+5%',
+      change: stats?.activeMeetings ? calculateChange(stats.activeMeetings, previousMonthMeetings) : '0%',
       changeType: 'positive' as const,
       color: 'green'
     },
@@ -114,7 +127,7 @@ export default function Dashboard() {
       title: 'Total Revenue',
       value: formatCurrency(stats?.totalRevenue || 0),
       icon: DollarSign,
-      change: '+18%',
+      change: stats?.totalRevenue ? calculateChange(stats.totalRevenue, previousMonthRevenue) : '0%',
       changeType: 'positive' as const,
       color: 'purple'
     },
@@ -122,8 +135,8 @@ export default function Dashboard() {
       title: 'Conversion Rate',
       value: `${(stats?.conversionRate || 0).toFixed(1)}%`,
       icon: Target,
-      change: '+2.3%',
-      changeType: 'positive' as const,
+      change: '0%',
+      changeType: 'neutral' as const,
       color: 'orange'
     }
   ];
@@ -131,7 +144,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-dark-900 dark:to-dark-800 animate-pulse">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-6 xl:py-8">
           <div className="h-10 bg-slate-200 dark:bg-dark-700 rounded-xl w-1/3 mb-8 animate-pulse"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {[1, 2, 3, 4].map(i => (
@@ -154,11 +167,11 @@ export default function Dashboard() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div id="dashboard-header" className="mb-8 animate-fade-in-up">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2 bg-gradient-primary bg-clip-text text-transparent">
+        <div id="dashboard-header" className="mb-6 xl:mb-8 animate-fade-in-up">
+          <h1 className="text-3xl xl:text-4xl font-bold text-slate-900 dark:text-white mb-2">
             Welcome back, {user?.user_metadata?.full_name || 'Reseller'}!
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="text-base xl:text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
             {isDemoMode ? 'You are currently in demo mode. ' : ''}
             Here's your business overview for today.
           </p>
@@ -166,25 +179,25 @@ export default function Dashboard() {
 
         {/* Demo Mode Banner */}
         {isDemoMode && (
-          <div id="demo-banner" className="mb-8 bg-gradient-to-r from-info-50 to-primary-50 dark:from-info-900/30 dark:to-primary-900/30 rounded-2xl p-6 border border-info-200 dark:border-info-800 shadow-glass animate-fade-in-up animate-delay-200">
-            <div className="flex items-center">
+          <div id="demo-banner" className="mb-6 xl:mb-8 bg-gradient-to-r from-info-50 to-primary-50 dark:from-info-900/30 dark:to-primary-900/30 rounded-2xl p-4 xl:p-6 border border-info-200 dark:border-info-800 shadow-glass animate-fade-in-up animate-delay-200">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-info rounded-xl flex items-center justify-center shadow-glow">
-                  <Clock className="h-6 w-6 text-white" />
+                <div className="w-10 h-10 xl:w-12 xl:h-12 bg-gradient-info rounded-xl flex items-center justify-center shadow-glow">
+                  <Clock className="h-5 w-5 xl:h-6 xl:w-6 text-white" />
                 </div>
               </div>
-              <div className="ml-4 flex-1">
-                <h3 className="text-lg font-bold text-info-800 dark:text-info-200 mb-1">Demo Mode Active</h3>
-                <p className="text-info-700 dark:text-info-300 leading-relaxed">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base xl:text-lg font-bold text-info-800 dark:text-info-200 mb-1">Demo Mode Active</h3>
+                <p className="text-sm xl:text-base text-info-700 dark:text-info-300 leading-relaxed">
                   You are viewing sample data. Upgrade to Pro to manage your own products and meetings.
                 </p>
-                <div className="mt-3">
+                <div className="mt-2 xl:mt-3">
                   <Link
                     to={ROUTES.pricing}
-                    className="inline-flex items-center px-6 py-3 bg-gradient-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow"
+                    className="inline-flex items-center px-4 xl:px-6 py-2 xl:py-3 bg-gradient-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow text-sm xl:text-base"
                   >
                     Upgrade to Pro
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                    <ArrowRight className="ml-2 w-4 h-4 xl:w-5 xl:h-5" />
                   </Link>
                 </div>
               </div>
@@ -193,7 +206,7 @@ export default function Dashboard() {
         )}
 
         {/* Stats Grid */}
-        <div id="stats-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div id="stats-grid" className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 mb-8">
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             const colorClasses = {
@@ -204,21 +217,30 @@ export default function Dashboard() {
             };
 
             return (
-              <div key={index} className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-2xl shadow-glass p-6 hover:shadow-glass-strong transition-all duration-300 border border-white/30 dark:border-dark-700/50 group hover:-translate-y-1 animate-fade-in-up animate-delay-300">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">{stat.title}</p>
-                    <p className="text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
-                    <div className="flex items-center space-x-2">
-                      <div className="flex items-center">
-                        <TrendingUp className="h-4 w-4 text-success mr-1" />
-                        <span className="text-sm text-success font-semibold">{stat.change}</span>
-                      </div>
-                      <span className="text-sm text-slate-500 dark:text-slate-400">vs last month</span>
+              <div key={index} className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-2xl shadow-glass p-6 hover:shadow-glass-strong transition-all duration-300 border border-white/30 dark:border-dark-700/50 group hover:-translate-y-1 animate-fade-in-up animate-delay-300 min-h-[140px]">
+                {/* Icon at top-left */}
+                <div className={`p-3 rounded-xl ${colorClasses[stat.color as keyof typeof colorClasses]} mb-4 group-hover:scale-110 transition-transform shadow-sm`}>
+                  <Icon className="h-6 w-6" />
+                </div>
+                
+                {/* Content */}
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">{stat.title}</p>
+                  <p className="text-3xl font-bold text-slate-900 dark:text-white">{stat.value}</p>
+                  
+                  {/* Change indicator */}
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center">
+                      {stat.change !== '0%' && stat.changeType !== 'neutral' ? (
+                        <>
+                          <TrendingUp className="h-4 w-4 text-success mr-1" />
+                          <span className="text-sm text-success font-semibold">{stat.change}</span>
+                        </>
+                      ) : (
+                        <span className="text-sm text-slate-500 dark:text-slate-400 font-semibold">{stat.change}</span>
+                      )}
                     </div>
-                  </div>
-                  <div className={`p-4 rounded-2xl ${colorClasses[stat.color as keyof typeof colorClasses]} group-hover:scale-110 transition-transform`}>
-                    <Icon className="h-8 w-8" />
+                    <span className="text-sm text-slate-500 dark:text-slate-400">vs last month</span>
                   </div>
                 </div>
               </div>
@@ -226,42 +248,73 @@ export default function Dashboard() {
           })}
         </div>
 
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-8 mb-8">
+          <DashboardChart
+            data={[
+              { month: 'Jan', revenue: 1200, products: 15, meetings: 8 },
+              { month: 'Feb', revenue: 1450, products: 18, meetings: 10 },
+              { month: 'Mar', revenue: 1800, products: 22, meetings: 12 },
+              { month: 'Apr', revenue: 2100, products: 25, meetings: 15 },
+              { month: 'May', revenue: 1950, products: 23, meetings: 13 },
+              { month: 'Jun', revenue: 2400, products: 28, meetings: 18 }
+            ]}
+            title="Revenue Trend"
+            type="revenue"
+            height={320}
+          />
+          
+          <DashboardChart
+            data={[
+              { month: 'Jan', revenue: 1200, products: 15, meetings: 8 },
+              { month: 'Feb', revenue: 1450, products: 18, meetings: 10 },
+              { month: 'Mar', revenue: 1800, products: 22, meetings: 12 },
+              { month: 'Apr', revenue: 2100, products: 25, meetings: 15 },
+              { month: 'May', revenue: 1950, products: 23, meetings: 13 },
+              { month: 'Jun', revenue: 2400, products: 28, meetings: 18 }
+            ]}
+            title="Product Activity"
+            type="products"
+            height={320}
+          />
+        </div>
+
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 xl:gap-8">
           {/* Recent Products */}
-          <div className="lg:col-span-2">
-            <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-3xl shadow-glass border border-white/30 dark:border-dark-700/50 animate-fade-in-up animate-delay-500">
-              <div className="px-8 py-6 border-b border-slate-200 dark:border-dark-700 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recent Products</h2>
+          <div className="xl:col-span-2">
+            <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-3xl shadow-glass border border-white/30 dark:border-dark-700/50 animate-fade-in-up animate-delay-500 h-full">
+              <div className="px-6 xl:px-8 py-6 border-b border-slate-200 dark:border-dark-700 flex items-center justify-between">
+                <h2 className="text-lg xl:text-xl font-bold text-slate-900 dark:text-white">Recent Products</h2>
                 <Link
                   to={ROUTES.dashboardProducts}
-                  className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-semibold flex items-center group transition-colors"
+                  className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-semibold flex items-center group transition-colors text-sm xl:text-base"
                 >
                   View all
                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
-              <div className="p-8">
+              <div className="p-6 xl:p-8">
                 {stats?.recentProducts && stats.recentProducts.length > 0 ? (
-                  <div className="space-y-4">
+                  <div className="space-y-3 xl:space-y-4">
                     {stats.recentProducts.map((product) => (
-                      <div key={product.id} className="flex items-center justify-between p-6 bg-slate-50 dark:bg-dark-900/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-dark-900/70 transition-all duration-200 group">
-                        <div className="flex items-center space-x-6">
-                          <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform">
-                            <Package className="h-8 w-8 text-white" />
+                      <div key={product.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 xl:p-6 bg-slate-50 dark:bg-dark-900/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-dark-900/70 transition-all duration-200 group gap-4">
+                        <div className="flex items-center space-x-4 xl:space-x-6">
+                          <div className="w-12 h-12 xl:w-16 xl:h-16 bg-gradient-primary rounded-2xl flex items-center justify-center shadow-glow group-hover:scale-110 transition-transform flex-shrink-0">
+                            <Package className="h-6 w-6 xl:h-8 xl:w-8 text-white" />
                           </div>
-                          <div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{product.name}</h3>
-                            <p className="text-slate-600 dark:text-slate-300">
+                          <div className="min-w-0 flex-1">
+                            <h3 className="text-base xl:text-lg font-bold text-slate-900 dark:text-white mb-1 truncate">{product.name}</h3>
+                            <p className="text-sm xl:text-base text-slate-600 dark:text-slate-300">
                               {product.category} • {formatDate(product.created_at)}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right space-y-2">
-                          <p className="text-xl font-bold text-slate-900 dark:text-white">
+                        <div className="text-right space-y-2 flex-shrink-0">
+                          <p className="text-lg xl:text-xl font-bold text-slate-900 dark:text-white">
                             {formatCurrency(product.listing_price || 0)}
                           </p>
-                          <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${
+                          <span className={`inline-flex items-center px-3 xl:px-4 py-1.5 xl:py-2 rounded-full text-xs xl:text-sm font-semibold ${
                             product.status === 'sold' 
                               ? 'bg-success-100 text-success-800 dark:bg-success-900 dark:text-success-200'
                               : product.status === 'listed'
@@ -311,39 +364,39 @@ export default function Dashboard() {
           </div>
 
           {/* Upcoming Meetings */}
-          <div className="space-y-8">
-            <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-3xl shadow-glass border border-white/30 dark:border-dark-700/50 animate-fade-in-up animate-delay-700">
-              <div className="px-8 py-6 border-b border-slate-200 dark:border-dark-700 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Upcoming Meetings</h2>
+          <div className="space-y-6 xl:space-y-8">
+            <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-3xl shadow-glass border border-white/30 dark:border-dark-700/50 animate-fade-in-up animate-delay-700 h-full">
+              <div className="px-6 xl:px-8 py-6 border-b border-slate-200 dark:border-dark-700 flex items-center justify-between">
+                <h2 className="text-lg xl:text-xl font-bold text-slate-900 dark:text-white">Upcoming Meetings</h2>
                 <Link
                   to={ROUTES.dashboardMeetings}
-                  className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-semibold flex items-center group transition-colors"
+                  className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-semibold flex items-center group transition-colors text-sm xl:text-base"
                 >
                   View all
                   <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
-              <div className="p-8">
+              <div className="p-6 xl:p-8">
                 {stats?.upcomingMeetings && stats.upcomingMeetings.length > 0 ? (
-                  <div className="space-y-6">
+                  <div className="space-y-4 xl:space-y-6">
                     {stats.upcomingMeetings.map((meeting) => (
-                      <div key={meeting.id} className="flex items-center space-x-6 p-4 bg-slate-50 dark:bg-dark-900/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-dark-900/70 transition-all duration-200 group">
+                      <div key={meeting.id} className="flex items-center space-x-4 xl:space-x-6 p-3 xl:p-4 bg-slate-50 dark:bg-dark-900/50 rounded-2xl hover:bg-slate-100 dark:hover:bg-dark-900/70 transition-all duration-200 group">
                         <div className="flex-shrink-0">
-                          <div className="w-12 h-12 bg-gradient-info rounded-2xl flex items-center justify-center shadow-glow">
-                            <Calendar className="h-6 w-6 text-white" />
+                          <div className="w-10 h-10 xl:w-12 xl:h-12 bg-gradient-info rounded-2xl flex items-center justify-center shadow-glow">
+                            <Calendar className="h-5 w-5 xl:h-6 xl:w-6 text-white" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-lg font-bold text-slate-900 dark:text-white mb-1">{meeting.title}</p>
-                          <p className="text-slate-600 dark:text-slate-300 mb-1">
+                          <p className="text-base xl:text-lg font-bold text-slate-900 dark:text-white mb-1">{meeting.title}</p>
+                          <p className="text-sm xl:text-base text-slate-600 dark:text-slate-300 mb-1">
                             {formatDate(meeting.scheduled_date)} at {meeting.scheduled_time}
                           </p>
-                          <p className="text-slate-500 dark:text-slate-400">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
                             with {meeting.client_name}
                           </p>
                         </div>
                         <div className="flex-shrink-0">
-                          <div className="w-3 h-3 bg-success rounded-full animate-pulse"></div>
+                          <div className="w-2.5 h-2.5 xl:w-3 xl:h-3 bg-success rounded-full animate-pulse"></div>
                         </div>
                       </div>
                     ))}
@@ -384,27 +437,27 @@ export default function Dashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-3xl shadow-glass border border-white/30 dark:border-dark-700/50 animate-fade-in-up animate-delay-900">
-              <div className="px-8 py-6 border-b border-slate-200 dark:border-dark-700">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">Quick Actions</h2>
+            <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-lg rounded-3xl shadow-glass border border-white/30 dark:border-dark-700/50 animate-fade-in-up animate-delay-900 h-full">
+              <div className="px-6 xl:px-8 py-6 border-b border-slate-200 dark:border-dark-700">
+                <h2 className="text-lg xl:text-xl font-bold text-slate-900 dark:text-white">Quick Actions</h2>
               </div>
-              <div className="p-8 space-y-4">
+              <div className="p-6 xl:p-8 space-y-3 xl:space-y-4">
                 {isDemoMode ? (
                   <button
                     type="button"
                     onClick={() => handleDemoAction('Creating products')}
-                    className="w-full flex items-center justify-center px-6 py-4 bg-gray-200 text-gray-600 font-semibold rounded-xl cursor-not-allowed"
+                    className="w-full flex items-center justify-center px-4 xl:px-6 py-3 xl:py-4 bg-gray-200 text-gray-600 font-semibold rounded-xl cursor-not-allowed text-sm xl:text-base"
                     aria-disabled
                   >
-                    <Plus className="h-5 w-5 mr-3" />
+                    <Plus className="h-4 w-4 xl:h-5 xl:w-5 mr-2 xl:mr-3" />
                     Add New Product
                   </button>
                 ) : (
                   <Link
                     to={ROUTES.dashboardProductNew}
-                    className="w-full flex items-center justify-center px-6 py-4 bg-gradient-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow group"
+                    className="w-full flex items-center justify-center px-4 xl:px-6 py-3 xl:py-4 bg-gradient-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow group text-sm xl:text-base"
                   >
-                    <Plus className="h-5 w-5 mr-3 group-hover:rotate-90 transition-transform" />
+                    <Plus className="h-4 w-4 xl:h-5 xl:w-5 mr-2 xl:mr-3 group-hover:rotate-90 transition-transform" />
                     Add New Product
                   </Link>
                 )}
@@ -412,18 +465,18 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => handleDemoAction('Scheduling meetings')}
-                    className="w-full flex items-center justify-center px-6 py-4 bg-gray-200 text-gray-600 font-semibold rounded-xl cursor-not-allowed"
+                    className="w-full flex items-center justify-center px-4 xl:px-6 py-3 xl:py-4 bg-gray-200 text-gray-600 font-semibold rounded-xl cursor-not-allowed text-sm xl:text-base"
                     aria-disabled
                   >
-                    <Calendar className="h-5 w-5 mr-3" />
+                    <Calendar className="h-4 w-4 xl:h-5 xl:w-5 mr-2 xl:mr-3" />
                     Schedule Meeting
                   </button>
                 ) : (
                   <Link
                     to={ROUTES.dashboardMeetingNew}
-                    className="w-full flex items-center justify-center px-6 py-4 bg-white dark:bg-dark-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border-2 border-slate-200 dark:border-dark-600 hover:bg-slate-50 dark:hover:bg-dark-600 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-200 group"
+                    className="w-full flex items-center justify-center px-4 xl:px-6 py-3 xl:py-4 bg-white dark:bg-dark-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border-2 border-slate-200 dark:border-dark-600 hover:bg-slate-50 dark:hover:bg-dark-600 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-200 group text-sm xl:text-base"
                   >
-                    <Calendar className="h-5 w-5 mr-3 text-primary-600" />
+                    <Calendar className="h-4 w-4 xl:h-5 xl:w-5 mr-2 xl:mr-3 text-primary-600" />
                     Schedule Meeting
                   </Link>
                 )}
