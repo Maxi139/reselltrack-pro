@@ -4,7 +4,9 @@ import { Link } from 'react-router-dom';
 import { Plus, Calendar, Clock, User, MapPin, Phone, Mail, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import { dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import { formatDate, formatDateTime } from '../utils/formatters';
+import { formatDate } from '../utils/formatters';
+import { ROUTES } from '../routes';
+import { notifyDemoRestriction } from '../utils/demoMode';
 
 interface MeetingFilters {
   status: string;
@@ -125,10 +127,20 @@ export default function Meetings() {
   };
 
   const handleStatusUpdate = (meetingId: string, status: string) => {
+    if (isDemoMode) {
+      notifyDemoRestriction('Updating meetings');
+      return;
+    }
+
     updateStatusMutation.mutate({ meetingId, status });
   };
 
   const handleDelete = (meetingId: string) => {
+    if (isDemoMode) {
+      notifyDemoRestriction('Deleting meetings');
+      return;
+    }
+
     if (window.confirm('Are you sure you want to delete this meeting?')) {
       deleteMutation.mutate(meetingId);
     }
@@ -169,9 +181,20 @@ export default function Meetings() {
               {isDemoMode ? 'Viewing demo meetings' : 'Schedule and manage client meetings'}
             </p>
           </div>
-          {!isDemoMode && (
+          {isDemoMode ? (
+            <button
+              type="button"
+              onClick={() => notifyDemoRestriction('Scheduling meetings')}
+              className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-600 text-sm font-medium rounded-lg cursor-not-allowed"
+              aria-disabled
+              title="Demo mode"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Schedule Meeting
+            </button>
+          ) : (
             <Link
-              to="/meetings/new"
+              to={ROUTES.dashboardMeetingNew}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -296,26 +319,55 @@ export default function Meetings() {
                   
                   {/* Actions */}
                   <div className="flex items-center space-x-2">
-                    {!isDemoMode && meeting.status === 'scheduled' && (
+                    {meeting.status === 'scheduled' && (
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handleStatusUpdate(meeting.id, 'completed')}
                           disabled={updateStatusMutation.isPending}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
-                          title="Mark as completed"
+                          className={`p-2 rounded-lg ${isDemoMode ? 'text-gray-300 cursor-not-allowed' : 'text-green-600 hover:bg-green-50'}`}
+                          title={isDemoMode ? 'Demo mode' : 'Mark as completed'}
+                          aria-disabled={isDemoMode}
+                          type="button"
                         >
                           <CheckCircle className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleStatusUpdate(meeting.id, 'no_show')}
                           disabled={updateStatusMutation.isPending}
-                          className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg"
-                          title="Mark as no show"
+                          className={`p-2 rounded-lg ${isDemoMode ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:bg-gray-50'}`}
+                          title={isDemoMode ? 'Demo mode' : 'Mark as no show'}
+                          aria-disabled={isDemoMode}
+                          type="button"
                         >
                           <XCircle className="h-4 w-4" />
                         </button>
+                      </div>
+                    )}
+                    {isDemoMode ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => notifyDemoRestriction('Editing meetings')}
+                          className="p-2 text-gray-300 cursor-not-allowed"
+                          aria-disabled
+                          title="Demo mode"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => notifyDemoRestriction('Deleting meetings')}
+                          className="p-2 text-gray-300 cursor-not-allowed"
+                          aria-disabled
+                          title="Demo mode"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </>
+                    ) : (
+                      <>
                         <Link
-                          to={`/meetings/${meeting.id}/edit`}
+                          to={ROUTES.dashboardMeetingEdit(meeting.id)}
                           className="p-2 text-gray-400 hover:text-gray-600"
                         >
                           <Edit className="h-4 w-4" />
@@ -327,7 +379,7 @@ export default function Meetings() {
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
-                      </div>
+                      </>
                     )}
                   </div>
                 </div>
@@ -346,9 +398,19 @@ export default function Meetings() {
                   ? 'Try adjusting your search or filter criteria.'
                   : 'Schedule your first meeting to get started.'}
               </p>
-              {!isDemoMode && (
+              {isDemoMode ? (
+                <button
+                  type="button"
+                  onClick={() => notifyDemoRestriction('Scheduling meetings')}
+                  className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-600 text-sm font-medium rounded-lg cursor-not-allowed"
+                  aria-disabled
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Schedule Meeting
+                </button>
+              ) : (
                 <Link
-                  to="/meetings/new"
+                  to={ROUTES.dashboardMeetingNew}
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />

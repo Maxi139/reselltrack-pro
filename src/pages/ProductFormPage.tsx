@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import ProductForm from '../components/ProductForm';
 import { dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { ROUTES } from '../routes';
 
 export default function ProductFormPage() {
   const navigate = useNavigate();
@@ -31,11 +32,13 @@ export default function ProductFormPage() {
       const productData = {
         ...formData,
         user_id: user.id,
+        listing_price: formData.listing_price ?? null,
+        purchase_price: formData.purchase_price ?? null,
         tags: formData.tags ? formData.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [],
-        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price 
-          ? formData.listing_price - formData.purchase_price 
+        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price
+          ? formData.listing_price - formData.purchase_price
           : null,
-        sold_price: formData.status === 'sold' ? formData.listing_price : null
+        sold_price: formData.status === 'sold' && formData.listing_price ? formData.listing_price : null
       };
 
       const { error } = await dbHelpers.createProduct(productData);
@@ -45,7 +48,7 @@ export default function ProductFormPage() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('Product created successfully!');
-      navigate('/products');
+      navigate(ROUTES.dashboardProducts);
     },
     onError: (error) => {
       toast.error('Failed to create product');
@@ -59,11 +62,13 @@ export default function ProductFormPage() {
       
       const productData = {
         ...formData,
+        listing_price: formData.listing_price ?? null,
+        purchase_price: formData.purchase_price ?? null,
         tags: formData.tags ? formData.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [],
-        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price 
-          ? formData.listing_price - formData.purchase_price 
+        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price
+          ? formData.listing_price - formData.purchase_price
           : null,
-        sold_price: formData.status === 'sold' ? formData.listing_price : null
+        sold_price: formData.status === 'sold' && formData.listing_price ? formData.listing_price : null
       };
 
       const { error } = await dbHelpers.updateProduct(id, productData);
@@ -74,7 +79,7 @@ export default function ProductFormPage() {
       queryClient.invalidateQueries({ queryKey: ['product', id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('Product updated successfully!');
-      navigate('/products');
+      navigate(ROUTES.dashboardProducts);
     },
     onError: (error) => {
       toast.error('Failed to update product');
@@ -91,7 +96,7 @@ export default function ProductFormPage() {
   };
 
   const handleCancel = () => {
-    navigate('/products');
+    navigate(ROUTES.dashboardProducts);
   };
 
   if (isEditing && isLoading) {
