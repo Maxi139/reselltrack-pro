@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowRight, Smartphone, TrendingUp, Calendar, Shield, Star, Check, Menu, X, DollarSign, Package } from 'lucide-react'
 import { useState } from 'react'
+import { ROUTES } from '../routes'
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -9,8 +10,8 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="bg-white/90 backdrop-blur border-b border-gray-100 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -29,10 +30,10 @@ export default function LandingPage() {
 
             {/* Desktop Auth Buttons */}
             <div className="hidden md:flex items-center space-x-4">
-              <Link to="/auth" className="text-gray-600 hover:text-primary-500 transition-colors font-medium">
+              <Link to={ROUTES.auth} className="text-gray-600 hover:text-primary-500 transition-colors font-medium">
                 Sign In
               </Link>
-              <Link to="/auth" className="btn-primary">
+              <Link to={ROUTES.auth} className="btn-primary">
                 Start Free Trial
               </Link>
             </div>
@@ -59,8 +60,8 @@ export default function LandingPage() {
                 <a href="#pricing" className="block px-3 py-2 text-gray-600 hover:text-primary-500 font-medium">Pricing</a>
                 <a href="#testimonials" className="block px-3 py-2 text-gray-600 hover:text-primary-500 font-medium">Testimonials</a>
                 <div className="border-t border-gray-200 pt-2">
-                  <Link to="/auth" className="block px-3 py-2 text-gray-600 hover:text-primary-500 font-medium">Sign In</Link>
-                  <Link to="/auth" className="block w-full text-left px-3 py-2 btn-primary mt-2">Start Free Trial</Link>
+                  <Link to={ROUTES.auth} className="block px-3 py-2 text-gray-600 hover:text-primary-500 font-medium">Sign In</Link>
+                  <Link to={ROUTES.auth} className="block w-full text-left px-3 py-2 btn-primary mt-2">Start Free Trial</Link>
                 </div>
               </div>
             </motion.div>
@@ -70,8 +71,8 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             {/* Left Column - Content */}
             <div className="space-y-8">
               <div className="space-y-4">
@@ -79,24 +80,24 @@ export default function LandingPage() {
                   Turn Your Side Hustle Into a
                   <span className="text-primary-500"> Profitable Business</span>
                 </h1>
-                <p className="text-xl text-gray-600 leading-relaxed">
+                <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
                   The all-in-one platform for resellers. Track inventory, manage customers, and grow your business with powerful analytics and automation.
                 </p>
               </div>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link to="/auth" className="btn-primary text-lg px-8 py-4">
+                <Link to={ROUTES.auth} className="btn-primary text-lg px-8 py-4">
                   Start Free Trial
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
-                <button className="btn-secondary text-lg px-8 py-4">
+                <Link to={ROUTES.demo} className="btn-secondary text-lg px-8 py-4 text-center">
                   Watch Demo
-                </button>
+                </Link>
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-6 pt-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 sm:pt-8">
                 <div className="text-center">
                   <div className="flex justify-center mb-2">
                     <DollarSign className="w-8 h-8 text-success-500" />
@@ -123,7 +124,7 @@ export default function LandingPage() {
 
             {/* Right Column - Image Placeholder */}
             <div className="relative">
-              <div className="bg-gradient-primary rounded-2xl p-8 lg:p-12 text-white">
+              <div className="bg-gradient-primary rounded-3xl p-8 lg:p-12 text-white shadow-xl">
                 <div className="space-y-6">
                   <div className="bg-white bg-opacity-20 rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
@@ -154,20 +155,20 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+      <section id="features" className="py-16 sm:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               Everything You Need to Scale Your Reselling Business
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
               From inventory tracking to customer management, we've got you covered with powerful tools designed specifically for resellers.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Feature 1 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
               <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
                 <Smartphone className="w-6 h-6 text-white" />
               </div>
@@ -178,7 +179,7 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 2 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
               <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mb-4">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
@@ -189,7 +190,7 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 3 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
               <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
                 <Calendar className="w-6 h-6 text-white" />
               </div>
@@ -200,7 +201,7 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 4 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
               <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mb-4">
                 <Shield className="w-6 h-6 text-white" />
               </div>
@@ -211,7 +212,7 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 5 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
               <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
                 <Star className="w-6 h-6 text-white" />
               </div>
@@ -222,7 +223,7 @@ export default function LandingPage() {
             </div>
 
             {/* Feature 6 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
               <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mb-4">
                 <Check className="w-6 h-6 text-white" />
               </div>
@@ -236,9 +237,9 @@ export default function LandingPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+      <section id="testimonials" className="py-16 sm:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               Trusted by Successful Resellers
             </h2>
@@ -247,9 +248,9 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Testimonial 1 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-gray-50 rounded-2xl shadow-sm h-full flex flex-col">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
@@ -270,7 +271,7 @@ export default function LandingPage() {
             </div>
 
             {/* Testimonial 2 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-gray-50 rounded-2xl shadow-sm h-full flex flex-col">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
@@ -291,7 +292,7 @@ export default function LandingPage() {
             </div>
 
             {/* Testimonial 3 */}
-            <div className="card-hover p-6">
+            <div className="card-hover p-6 bg-gray-50 rounded-2xl shadow-sm h-full flex flex-col">
               <div className="flex items-center mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
@@ -315,9 +316,9 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+      <section id="pricing" className="py-16 sm:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
               Simple, Transparent Pricing
             </h2>
@@ -326,9 +327,9 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
             {/* Starter Plan */}
-            <div className="card-hover p-6 bg-white">
+            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm flex flex-col">
               <div className="text-center mb-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Starter</h3>
                 <div className="text-4xl font-bold text-gray-900 mb-1">Free</div>
@@ -354,7 +355,7 @@ export default function LandingPage() {
             </div>
 
             {/* Professional Plan */}
-            <div className="card-hover p-6 bg-white border-2 border-primary-500 relative">
+            <div className="card-hover p-6 bg-white border-2 border-primary-500 rounded-2xl shadow-lg relative flex flex-col">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-gradient-primary text-white px-3 py-1 rounded-full text-sm font-medium">
                   Most Popular
@@ -389,7 +390,7 @@ export default function LandingPage() {
             </div>
 
             {/* Enterprise Plan */}
-            <div className="card-hover p-6 bg-white">
+            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm flex flex-col">
               <div className="text-center mb-6">
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">Enterprise</h3>
                 <div className="text-4xl font-bold text-gray-900 mb-1">$99</div>
@@ -422,7 +423,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-primary">
+      <section className="py-16 sm:py-24 bg-gradient-primary">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
             Ready to Transform Your Reselling Business?
@@ -431,12 +432,12 @@ export default function LandingPage() {
             Join thousands of successful resellers who trust ResellTrack Pro to grow their business.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/auth" className="btn-primary text-lg px-8 py-4 bg-white text-primary-500 hover:bg-gray-100">
+            <Link to={ROUTES.auth} className="btn-primary text-lg px-8 py-4 bg-white text-primary-500 hover:bg-gray-100">
               Start Free Trial
             </Link>
-            <button className="btn-outline-white text-lg px-8 py-4">
+            <Link to={ROUTES.demo} className="btn-outline-white text-lg px-8 py-4 text-center">
               Schedule Demo
-            </button>
+            </Link>
           </div>
         </div>
       </section>

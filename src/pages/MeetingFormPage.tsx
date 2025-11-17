@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import MeetingForm from '../components/MeetingForm';
 import { dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { ROUTES } from '../routes';
 
 export default function MeetingFormPage() {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ export default function MeetingFormPage() {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('Meeting scheduled successfully!');
-      navigate('/meetings');
+      navigate(ROUTES.dashboardMeetings);
     },
     onError: (error) => {
       toast.error('Failed to schedule meeting');
@@ -79,7 +80,7 @@ export default function MeetingFormPage() {
       queryClient.invalidateQueries({ queryKey: ['meeting', id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('Meeting updated successfully!');
-      navigate('/meetings');
+      navigate(ROUTES.dashboardMeetings);
     },
     onError: (error) => {
       toast.error('Failed to update meeting');
@@ -96,7 +97,7 @@ export default function MeetingFormPage() {
   };
 
   const handleCancel = () => {
-    navigate('/meetings');
+    navigate(ROUTES.dashboardMeetings);
   };
 
   if (isEditing && meetingLoading) {

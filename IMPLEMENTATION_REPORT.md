@@ -317,6 +317,13 @@ Die Implementierung wurde erfolgreich abgeschlossen und steht für die Produktio
 
 ---
 
-**Erstellt am:** 16. November 2024  
-**Version:** 1.0.0  
+**Erstellt am:** 16. November 2024
+**Version:** 1.0.0
 **Status:** Vollständig implementiert und getestet
+
+## 2024-05-XX Dashboard & Demo-Modus Feinschliff
+
+- Einheitliche Routing-Konstanten (`src/routes.ts`) eingeführt und in allen Dashboard-Links verwendet, damit Formularseiten konsequent unter `/dashboard/*` geladen werden.
+- Neue Placeholder-Seiten für Analytics, Settings und Help hinzugefügt, damit Sidebar-Einträge nicht mehr auf eine 404-Weiterleitung verweisen.
+- Landing-Page hinsichtlich Responsiveness, Abständen und CTA-Verlinkungen überarbeitet (Hero-Buttons, Karten-Abstände, CTA-Sektion).
+- Dashboard-Layout auf Mobilgeräten verbessert (vollflächiger Overlay, Fokuszustände) und Demo-Mode-Guardrails für Produkte, Meetings und Schnellaktionen ergänzt inklusive Toast/Tooltip-Hinweisen.

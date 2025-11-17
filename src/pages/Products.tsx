@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Filter, Edit, Trash2, Eye, DollarSign, Package, Tag, Calendar } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, DollarSign, Package, Tag, Calendar } from 'lucide-react';
 import { dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, formatDate, formatPercentage } from '../utils/formatters';
+import { ROUTES } from '../routes';
+import { notifyDemoRestriction } from '../utils/demoMode';
 
 interface ProductFilters {
   status: string;
@@ -96,6 +98,10 @@ export default function Products() {
   const categories = ['Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books', 'Toys', 'Other'];
   const statuses = ['listed', 'sold', 'pending', 'expired'];
 
+  const handleDemoAction = (action: string) => {
+    notifyDemoRestriction(action);
+  };
+
   const handleDelete = (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       deleteMutation.mutate(productId);
@@ -133,10 +139,22 @@ export default function Products() {
               {isDemoMode ? 'Viewing demo products' : 'Manage your product inventory and track sales'}
             </p>
           </div>
-          {!isDemoMode && (
+          {isDemoMode ? (
+            <button
+              type="button"
+              id="add-product-btn"
+              onClick={() => handleDemoAction('Creating products')}
+              className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-600 text-sm font-medium rounded-lg cursor-not-allowed"
+              aria-disabled
+              title="Demo mode"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Product
+            </button>
+          ) : (
             <Link
               id="add-product-btn"
-              to="/products/new"
+              to={ROUTES.dashboardProductNew}
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -286,15 +304,36 @@ export default function Products() {
                       
                       <div className="flex items-center space-x-2">
                         <Link
-                          to={`/products/${product.id}`}
+                          to={ROUTES.dashboardProductDetail(product.id)}
                           className="p-2 text-gray-400 hover:text-gray-600"
                         >
                           <Eye className="h-4 w-4" />
                         </Link>
-                        {!isDemoMode && (
+                        {isDemoMode ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleDemoAction('Editing products')}
+                              className="p-2 text-gray-300 cursor-not-allowed"
+                              aria-disabled
+                              title="Demo mode"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDemoAction('Deleting products')}
+                              className="p-2 text-gray-300 cursor-not-allowed"
+                              aria-disabled
+                              title="Demo mode"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
                           <>
                             <Link
-                              to={`/products/${product.id}/edit`}
+                              to={ROUTES.dashboardProductEdit(product.id)}
                               className="p-2 text-gray-400 hover:text-gray-600"
                             >
                               <Edit className="h-4 w-4" />
@@ -321,15 +360,25 @@ export default function Products() {
                 {isDemoMode ? 'No demo products available' : 'No products found'}
               </h3>
               <p className="text-gray-500 mb-6">
-                {isDemoMode 
+                {isDemoMode
                   ? 'Demo products will appear here automatically.'
                   : filters.search || filters.status !== 'all' || filters.category !== 'all'
                   ? 'Try adjusting your search or filter criteria.'
                   : 'Get started by adding your first product.'}
               </p>
-              {!isDemoMode && (
+              {isDemoMode ? (
+                <button
+                  type="button"
+                  onClick={() => handleDemoAction('Creating products')}
+                  className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-600 text-sm font-medium rounded-lg cursor-not-allowed"
+                  aria-disabled
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </button>
+              ) : (
                 <Link
-                  to="/products/new"
+                  to={ROUTES.dashboardProductNew}
                   className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
                 >
                   <Plus className="h-4 w-4 mr-2" />

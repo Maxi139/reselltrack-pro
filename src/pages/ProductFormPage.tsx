@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import ProductForm from '../components/ProductForm';
 import { dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { ROUTES } from '../routes';
 
 export default function ProductFormPage() {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function ProductFormPage() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('Product created successfully!');
-      navigate('/products');
+      navigate(ROUTES.dashboardProducts);
     },
     onError: (error) => {
       toast.error('Failed to create product');
@@ -74,7 +75,7 @@ export default function ProductFormPage() {
       queryClient.invalidateQueries({ queryKey: ['product', id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('Product updated successfully!');
-      navigate('/products');
+      navigate(ROUTES.dashboardProducts);
     },
     onError: (error) => {
       toast.error('Failed to update product');
@@ -91,7 +92,7 @@ export default function ProductFormPage() {
   };
 
   const handleCancel = () => {
-    navigate('/products');
+    navigate(ROUTES.dashboardProducts);
   };
 
   if (isEditing && isLoading) {
