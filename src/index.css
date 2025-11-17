@@ -84,51 +84,128 @@ body {
 }
 
 /* Focus styles */
-.focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(59, 130, 246, 0.5);
 }
 
 /* Button styles */
 .btn {
-  @apply inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm focus-ring transition-colors duration-200;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(59, 130, 246, 0.5);
 }
 
 .btn-primary {
-  @apply btn bg-primary-600 text-white hover:bg-primary-700;
+  background-color: #4C6FFF;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #3D58D1;
 }
 
 .btn-secondary {
-  @apply btn bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-300;
+  background-color: #F1F5F9;
+  color: #374151;
+  border-color: #D1D5DB;
+}
+
+.btn-secondary:hover {
+  background-color: #E2E8F0;
 }
 
 .btn-success {
-  @apply btn bg-success-500 text-white hover:bg-success-600;
+  background-color: #32D85A;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #23B748;
 }
 
 .btn-error {
-  @apply btn bg-error-500 text-white hover:bg-error-600;
+  background-color: #F55F5F;
+  color: white;
+}
+
+.btn-error:hover {
+  background-color: #FF6B6B;
 }
 
 .btn-outline-white {
-  @apply btn bg-transparent text-white border-white hover:bg-white hover:text-primary-600;
+  background-color: transparent;
+  color: white;
+  border-color: white;
+}
+
+.btn-outline-white:hover {
+  background-color: white;
+  color: #4C6FFF;
 }
 
 /* Card styles */
 .card {
-  @apply bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #E2E8F0;
+  overflow: hidden;
 }
 
 .card-hover {
-  @apply card hover:shadow-md hover:border-gray-300 transition-all duration-200;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #E2E8F0;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.card-hover:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-color: #CBD5E1;
 }
 
 /* Input styles */
 .input {
-  @apply block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus-ring transition-colors duration-200;
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+.input::placeholder {
+  color: #9CA3AF;
+}
+
+.input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6, 0 0 0 4px rgba(59, 130, 246, 0.5);
 }
 
 .input-error {
-  @apply input border-error-500 focus:ring-error-500 focus:border-error-500;
+  border-color: #F55F5F;
+}
+
+.input-error:focus {
+  border-color: #F55F5F;
+  box-shadow: 0 0 0 2px #F55F5F, 0 0 0 4px rgba(245, 95, 95, 0.5);
 }
 
 /* Loading animations */
@@ -150,10 +227,13 @@ body {
   }
   
   .card {
-    @apply bg-slate-800 border-slate-700;
+    background-color: #1e293b;
+    border-color: #334155;
   }
   
   .input {
-    @apply bg-slate-800 border-slate-600 text-slate-100;
+    background-color: #1e293b;
+    border-color: #475569;
+    color: #f1f5f9;
   }
 }

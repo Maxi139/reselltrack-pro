@@ -1,9 +1,6 @@
 {
   "version": 2,
   "public": true,
-  "github": {
-    "enabled": false
-  },
   "builds": [
     {
       "src": "package.json",
@@ -15,9 +12,6 @@
   ],
   "routes": [
     {
-      "handle": "filesystem"
-    },
-    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
     },
@@ -25,9 +19,5 @@
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ],
-  "buildCommand": "npx vite build",
-  "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "framework": "vite"
+  ]
 }
