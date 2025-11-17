@@ -12,8 +12,12 @@ import Meetings from './pages/Meetings';
 import Pricing from './pages/Pricing';
 import ProductFormPage from './pages/ProductFormPage';
 import MeetingFormPage from './pages/MeetingFormPage';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
+import Help from './pages/Help';
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store';
+import { ROUTES } from './routes';
 import './App.css';
 
 const queryClient = new QueryClient({
@@ -43,20 +47,20 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/demo" element={<DemoPage />} />
+          <Route path={ROUTES.landing} element={<LandingPage />} />
+          <Route path={ROUTES.pricing} element={<Pricing />} />
+          <Route path={ROUTES.demo} element={<DemoPage />} />
           
           {/* Auth Routes */}
           <Route 
-            path="/auth" 
-            element={!user ? <AuthPage /> : <Navigate to="/dashboard" replace />} 
+            path={ROUTES.auth}
+            element={!user ? <AuthPage /> : <Navigate to={ROUTES.dashboard} replace />}
           />
           
           {/* Protected Routes */}
-          <Route 
-            path="/dashboard" 
-            element={(user || isDemoMode) ? <Layout /> : <Navigate to="/auth" replace />}
+          <Route
+            path={ROUTES.dashboard}
+            element={(user || isDemoMode) ? <Layout /> : <Navigate to={ROUTES.auth} replace />}
           >
             <Route index element={<Dashboard />} />
             <Route path="products" element={<Products />} />
@@ -65,6 +69,9 @@ function App() {
             <Route path="meetings" element={<Meetings />} />
             <Route path="meetings/new" element={<MeetingFormPage />} />
             <Route path="meetings/:id/edit" element={<MeetingFormPage />} />
+            <Route path="analytics" element={<Analytics />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="help" element={<Help />} />
           </Route>
           
           {/* Catch all route */}

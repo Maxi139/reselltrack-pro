@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X, Upload, DollarSign, Package, Tag, FileText, Camera } from 'lucide-react';
+import { ArrowLeft, Check, Image as ImageIcon, NotebookPen, Sparkles, Tag, Upload } from 'lucide-react';
+
+const priceField = z.preprocess((value) => {
+  if (value === '' || value === null || typeof value === 'undefined') return undefined;
+  if (typeof value === 'number') return value;
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? undefined : parsed;
+}, z.number().positive('Price must be positive').optional());
 
 const productSchema = z.object({
-  name: z.string().min(1, 'Product name is required').max(100, 'Name too long'),
+  name: z.string().min(1, 'Product name is required').max(120, 'Name too long'),
   description: z.string().max(500, 'Description too long').optional(),
-  category: z.string().min(1, 'Category is required'),
-  listing_price: z.number().positive('Listing price must be positive'),
-  purchase_price: z.number().positive('Purchase price must be positive').optional(),
-  platform: z.string().min(1, 'Platform is required'),
-  status: z.enum(['listed', 'sold', 'pending', 'expired']),
-  condition: z.enum(['new', 'like_new', 'good', 'fair', 'poor']),
-  tags: z.string().optional(), // Comma-separated tags
+  category: z.string().max(60, 'Category too long').optional(),
+  listing_price: priceField,
+  purchase_price: priceField,
+  platform: z.string().max(60, 'Platform too long').optional(),
+  status: z.enum(['listed', 'sold', 'pending', 'expired']).default('listed'),
+  condition: z.enum(['new', 'like_new', 'good', 'fair', 'poor']).default('good'),
+  tags: z.string().optional(),
   notes: z.string().max(1000, 'Notes too long').optional()
 });
 
-type ProductFormData = z.infer<typeof productSchema>;
+export type ProductFormData = z.infer<typeof productSchema>;
 
 interface ProductFormProps {
   product?: any;
@@ -25,73 +32,123 @@ interface ProductFormProps {
   onCancel: () => void;
 }
 
-const categories = [
-  'Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books', 'Toys', 
-  'Collectibles', 'Automotive', 'Health & Beauty', 'Other'
-];
-
-const platforms = [
-  'eBay', 'Facebook Marketplace', 'Craigslist', 'OfferUp', 'Mercari', 
-  'Poshmark', 'Depop', 'Etsy', 'Amazon', 'Local', 'Other'
-];
-
-const conditions = [
-  { value: 'new', label: 'New' },
-  { value: 'like_new', label: 'Like New' },
+const conditionOptions = [
+  { value: 'new', label: 'Brand new' },
+  { value: 'like_new', label: 'Like new' },
   { value: 'good', label: 'Good' },
   { value: 'fair', label: 'Fair' },
-  { value: 'poor', label: 'Poor' }
+  { value: 'poor', label: 'Well loved' }
 ];
 
-const statuses = [
-  { value: 'listed', label: 'Listed', color: 'blue' },
-  { value: 'sold', label: 'Sold', color: 'green' },
-  { value: 'pending', label: 'Pending', color: 'yellow' },
-  { value: 'expired', label: 'Expired', color: 'red' }
+const statusOptions = [
+  { value: 'listed', label: 'Ready to sell' },
+  { value: 'pending', label: 'In talks' },
+  { value: 'sold', label: 'Sold' },
+  { value: 'expired', label: 'Archived' }
 ];
+
+const quickCategories = ['Tech', 'Fashion', 'Home', 'Collectibles'];
+
+const steps = [
+  {
+    id: 1,
+    title: 'Name it',
+    description: 'Start with the product title',
+    icon: Sparkles
+  },
+  {
+    id: 2,
+    title: 'Show it',
+    description: 'Add visuals & context',
+    icon: ImageIcon
+  },
+  {
+    id: 3,
+    title: 'Price it',
+    description: 'Optional pricing & notes',
+    icon: NotebookPen
+  }
+];
+
+const stepFieldMap: Record<number, (keyof ProductFormData)[]> = {
+  1: ['name'],
+  2: [],
+  3: []
+};
 
 export default function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [activeStep, setActiveStep] = useState(1);
+  const [imagePreview, setImagePreview] = useState<string | null>(product?.image_url ?? null);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
-    setValue
+    trigger
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: product ? {
-      ...product,
-      listing_price: Number(product.listing_price),
-      purchase_price: product.purchase_price ? Number(product.purchase_price) : undefined,
-      tags: product.tags?.join(', ')
-    } : {
-      status: 'listed',
-      condition: 'good'
+    defaultValues: {
+      name: product?.name || '',
+      description: product?.description || '',
+      category: product?.category || '',
+      listing_price: product?.listing_price ? Number(product.listing_price) : undefined,
+      purchase_price: product?.purchase_price ? Number(product.purchase_price) : undefined,
+      platform: product?.platform || '',
+      status: (product?.status as ProductFormData['status']) || 'listed',
+      condition: (product?.condition as ProductFormData['condition']) || 'good',
+      tags: product?.tags?.join ? product.tags.join(', ') : product?.tags || '',
+      notes: product?.notes || ''
     }
   });
 
-  const watchedStatus = watch('status');
   const watchedListingPrice = watch('listing_price');
   const watchedPurchasePrice = watch('purchase_price');
+  const watchedStatus = watch('status');
+
+  const projectedProfit = useMemo(() => {
+    if (watchedListingPrice && watchedPurchasePrice) {
+      return watchedListingPrice - watchedPurchasePrice;
+    }
+    return null;
+  }, [watchedListingPrice, watchedPurchasePrice]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const goToStep = async (direction: 'next' | 'back') => {
+    if (direction === 'next') {
+      const fields = stepFieldMap[activeStep];
+      if (fields?.length) {
+        const isValid = await trigger(fields);
+        if (!isValid) return;
+      }
+      setActiveStep((prev) => Math.min(prev + 1, steps.length));
+    } else {
+      setActiveStep((prev) => Math.max(prev - 1, 1));
     }
+  };
+
+  const handleSkip = () => {
+    setActiveStep((prev) => Math.min(prev + 1, steps.length));
   };
 
   const onFormSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
     try {
-      await onSubmit(data);
+      await onSubmit({
+        ...data,
+        tags: data.tags?.trim() ? data.tags : undefined
+      });
     } catch (error) {
       console.error('Error submitting product:', error);
     } finally {
@@ -99,309 +156,304 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
     }
   };
 
-  const calculateProfit = () => {
-    if (watchedListingPrice && watchedPurchasePrice && watchedStatus === 'sold') {
-      return watchedListingPrice - watchedPurchasePrice;
-    }
-    return null;
-  };
-
-  const profit = calculateProfit();
+  const progress = (activeStep / steps.length) * 100;
+  const isLastStep = activeStep === steps.length;
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {product ? 'Edit Product' : 'Add New Product'}
-          </h2>
-          <button
-            onClick={onCancel}
-            className="p-2 text-gray-400 hover:text-gray-600"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit(onFormSubmit)} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-6">
-              {/* Product Images */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Product Images
-                </label>
-                <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <div className="w-24 h-24 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-                      {imagePreview ? (
-                        <img src={imagePreview} alt="Preview" className="w-full h-full object-cover rounded-lg" />
-                      ) : product?.image_url ? (
-                        <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-lg" />
-                      ) : (
-                        <Camera className="h-8 w-8 text-gray-400" />
-                      )}
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <button
-                      type="button"
-                      onClick={() => document.getElementById('image-upload')?.click()}
-                      className="flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Image
-                    </button>
-                    <p className="text-xs text-gray-500 mt-1">PNG, JPG up to 10MB</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Product Name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Product Name *
-                </label>
-                <input
-                  type="text"
-                  {...register('name')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter product name"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                )}
-              </div>
-
-              {/* Category and Condition */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category *
-                  </label>
-                  <select
-                    {...register('category')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select category</option>
-                    {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
-                    ))}
-                  </select>
-                  {errors.category && (
-                    <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Condition *
-                  </label>
-                  <select
-                    {...register('condition')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {conditions.map(condition => (
-                      <option key={condition.value} value={condition.value}>
-                        {condition.label}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.condition && (
-                    <p className="mt-1 text-sm text-red-600">{errors.condition.message}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description
-                </label>
-                <textarea
-                  {...register('description')}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Describe your product..."
-                />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-                )}
-              </div>
-
-              {/* Tags */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tags
-                </label>
-                <input
-                  type="text"
-                  {...register('tags')}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter tags separated by commas"
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  Separate tags with commas (e.g., vintage, rare, collectible)
-                </p>
-              </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-900 text-slate-50 py-10 px-4">
+      <div className="mx-auto max-w-4xl rounded-3xl bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl border border-white/10">
+        <div className="border-b border-white/10 p-6 sm:p-8 flex flex-col gap-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-indigo-200">Guided flow</p>
+              <h1 className="mt-2 text-3xl font-bold text-white">
+                {product?.id ? 'Update product' : 'Add a new product'}
+              </h1>
+              <p className="mt-2 text-sm text-indigo-100">
+                Answer one bite-sized question per step. You can always come back later to enrich the details.
+              </p>
             </div>
-
-            {/* Right Column */}
-            <div className="space-y-6">
-              {/* Pricing */}
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                  <DollarSign className="h-5 w-5 mr-2" />
-                  Pricing
-                </h3>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Listing Price *
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500 sm:text-sm">$</span>
-                      </div>
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...register('listing_price', { valueAsNumber: true })}
-                        className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="0.00"
-                      />
-                    </div>
-                    {errors.listing_price && (
-                      <p className="mt-1 text-sm text-red-600">{errors.listing_price.message}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Purchase Price
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500 sm:text-sm">$</span>
-                      </div>
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...register('purchase_price', { valueAsNumber: true })}
-                        className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="0.00"
-                      />
-                    </div>
-                    {errors.purchase_price && (
-                      <p className="mt-1 text-sm text-red-600">{errors.purchase_price.message}</p>
-                    )}
-                  </div>
-
-                  {profit !== null && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-green-800">Projected Profit</span>
-                        <span className="text-lg font-bold text-green-600">
-                          ${profit.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="text-xs text-green-600 mt-1">
-                        {watchedListingPrice > 0 ? `${((profit / watchedListingPrice) * 100).toFixed(1)}% margin` : ''}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Platform and Status */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Platform *
-                  </label>
-                  <select
-                    {...register('platform')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select platform</option>
-                    {platforms.map(platform => (
-                      <option key={platform} value={platform}>{platform}</option>
-                    ))}
-                  </select>
-                  {errors.platform && (
-                    <p className="mt-1 text-sm text-red-600">{errors.platform.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status *
-                  </label>
-                  <select
-                    {...register('status')}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {statuses.map(status => (
-                      <option key={status.value} value={status.value}>
-                        {status.label}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.status && (
-                    <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Notes */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Notes
-                </label>
-                <textarea
-                  {...register('notes')}
-                  rows={4}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Add any additional notes about this product..."
-                />
-                {errors.notes && (
-                  <p className="mt-1 text-sm text-red-600">{errors.notes.message}</p>
-                )}
-              </div>
-            </div>
+            <button
+              onClick={onCancel}
+              className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
+            >
+              Close
+            </button>
           </div>
 
-          {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Saving...
+          <div>
+            <div className="h-1.5 w-full rounded-full bg-white/10">
+              <div className="h-full rounded-full bg-gradient-to-r from-sky-400 to-violet-500 transition-all" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              {steps.map((step) => {
+                const Icon = step.icon;
+                const isActive = activeStep === step.id;
+                const isComplete = activeStep > step.id;
+                return (
+                  <div
+                    key={step.id}
+                    className={`rounded-2xl border px-4 py-3 text-sm transition ${
+                      isActive
+                        ? 'border-white/60 bg-white/10 text-white shadow-glow'
+                        : isComplete
+                        ? 'border-emerald-300/40 bg-emerald-400/10 text-emerald-100'
+                        : 'border-white/5 bg-white/5 text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isComplete ? 'bg-emerald-400/20' : 'bg-white/10'}`}>
+                        {isComplete ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
+                      </div>
+                      <div>
+                        <p className="font-semibold">{step.title}</p>
+                        <p className="text-xs text-slate-300">{step.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8 p-6 sm:p-10">
+          {activeStep === 1 && (
+            <div className="space-y-6">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-inner">
+                <label htmlFor="name" className="text-sm font-semibold text-white">
+                  Give your product a name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="e.g. iPhone 15 Pro Max"
+                  {...register('name')}
+                  className="mt-3 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
+                />
+                {errors.name && <p className="mt-2 text-sm text-rose-300">{errors.name.message}</p>}
+                <p className="mt-3 text-sm text-slate-200">Only the title is required to get started.</p>
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <p className="text-sm font-semibold text-white">Need inspiration?</p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {quickCategories.map((category) => (
+                    <button
+                      type="button"
+                      key={category}
+                      onClick={() => {
+                        const input = document.getElementById('name') as HTMLInputElement | null;
+                        if (input && !input.value.toLowerCase().includes(category.toLowerCase())) {
+                          input.value = `${input.value ? `${input.value} ` : ''}${category}`;
+                          input.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                      }}
+                      className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2 text-sm text-slate-100 transition hover:-translate-y-0.5 hover:border-white/40"
+                    >
+                      <Tag className="mr-2 h-4 w-4" /> {category}
+                    </button>
+                  ))}
                 </div>
-              ) : (
-                product ? 'Update Product' : 'Create Product'
+              </div>
+            </div>
+          )}
+
+          {activeStep === 2 && (
+            <div className="space-y-6">
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="rounded-3xl border border-dashed border-white/20 bg-white/5 p-6 text-center">
+                  <input id="image-upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="flex h-36 w-36 items-center justify-center rounded-3xl bg-white/10">
+                      {imagePreview ? (
+                        <img src={imagePreview} alt="Preview" className="h-36 w-36 rounded-3xl object-cover" />
+                      ) : product?.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="h-36 w-36 rounded-3xl object-cover" />
+                      ) : (
+                        <ImageIcon className="h-8 w-8 text-white/60" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-white">Drop in a quick photo (optional)</p>
+                      <p className="text-sm text-slate-200">Photos can be added later, but they help you identify the item quickly.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <label
+                        htmlFor="image-upload"
+                        className="cursor-pointer rounded-2xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:border-white/40"
+                      >
+                        <Upload className="mr-2 inline h-4 w-4" /> Upload
+                      </label>
+                      <button
+                        type="button"
+                        className="rounded-2xl border border-white/0 bg-white/10 px-4 py-2 text-sm text-slate-100"
+                        onClick={() => setImagePreview(null)}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-sm font-semibold text-white">Category (optional)</label>
+                    <input
+                      type="text"
+                      placeholder="Electronics, Fashion, Collectibles..."
+                      {...register('category')}
+                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold text-white">Condition</label>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                      {conditionOptions.map((option) => (
+                        <label
+                          key={option.value}
+                          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-slate-100 transition hover:border-white/40"
+                        >
+                          <input
+                            type="radio"
+                            value={option.value}
+                            {...register('condition')}
+                            className="h-4 w-4 border-white/30 bg-transparent text-sky-400 focus:ring-sky-300"
+                          />
+                          {option.label}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-semibold text-white">Tags (optional)</label>
+                    <input
+                      type="text"
+                      placeholder="Separate with commas"
+                      {...register('tags')}
+                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeStep === 3 && (
+            <div className="space-y-6">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label className="text-sm font-semibold text-white">Platform (optional)</label>
+                    <input
+                      type="text"
+                      placeholder="eBay, Marketplace, Shopify..."
+                      {...register('platform')}
+                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-white">Status</label>
+                    <select
+                      {...register('status')}
+                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white focus:border-sky-300 focus:outline-none"
+                    >
+                      {statusOptions.map((option) => (
+                        <option key={option.value} value={option.value} className="bg-slate-800 text-white">
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-white">Listing price (optional)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      {...register('listing_price')}
+                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
+                    />
+                    {errors.listing_price && <p className="mt-2 text-sm text-rose-300">{errors.listing_price.message}</p>}
+                  </div>
+                  <div>
+                    <label className="text-sm font-semibold text-white">Cost (optional)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      {...register('purchase_price')}
+                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
+                    />
+                    {errors.purchase_price && <p className="mt-2 text-sm text-rose-300">{errors.purchase_price.message}</p>}
+                  </div>
+                </div>
+
+                {projectedProfit !== null && (
+                  <div className="mt-4 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
+                    Potential profit: <span className="font-semibold">${projectedProfit.toFixed(2)}</span>{' '}
+                    {watchedStatus === 'sold' ? '(based on sale details)' : '(if sold at this price)'}
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+                <label className="text-sm font-semibold text-white">Notes (optional)</label>
+                <textarea
+                  rows={4}
+                  placeholder="Add quick reminders, buyer context, or custom steps"
+                  {...register('notes')}
+                  className="mt-2 w-full rounded-3xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm text-slate-300">
+              {isLastStep ? 'Ready to save. You can always edit later.' : `Next up: ${steps[activeStep]?.title ?? ''}`}
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              {activeStep > 1 && (
+                <button
+                  type="button"
+                  onClick={() => goToStep('back')}
+                  className="flex items-center justify-center rounded-2xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:border-white/40"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                </button>
               )}
-            </button>
+
+              {!isLastStep && (
+                <button
+                  type="button"
+                  onClick={handleSkip}
+                  className="rounded-2xl border border-white/0 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 hover:bg-white/10"
+                >
+                  Skip step
+                </button>
+              )}
+
+              {isLastStep ? (
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-400 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-glow transition hover:translate-y-0.5 disabled:opacity-70"
+                >
+                  {isSubmitting ? 'Saving...' : product?.id ? 'Save changes' : 'Save product'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => goToStep('next')}
+                  className="flex items-center justify-center rounded-2xl bg-white/15 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 backdrop-blur hover:bg-white/20"
+                >
+                  Continue
+                </button>
+              )}
+            </div>
           </div>
         </form>
       </div>

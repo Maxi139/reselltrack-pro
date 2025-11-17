@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Home, 
-  Package, 
-  Calendar, 
-  BarChart3, 
-  Settings, 
-  HelpCircle, 
+import {
+  Home,
+  Package,
+  Calendar,
+  BarChart3,
+  Settings,
+  HelpCircle,
   LogOut,
   Menu,
   X,
@@ -16,14 +16,15 @@ import {
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
+import { ROUTES } from '../routes';
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: Home },
-  { name: 'Products', href: '/dashboard/products', icon: Package },
-  { name: 'Meetings', href: '/dashboard/meetings', icon: Calendar },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-  { name: 'Help', href: '/dashboard/help', icon: HelpCircle },
+  { name: 'Dashboard', href: ROUTES.dashboard, icon: Home },
+  { name: 'Products', href: ROUTES.dashboardProducts, icon: Package },
+  { name: 'Meetings', href: ROUTES.dashboardMeetings, icon: Calendar },
+  { name: 'Analytics', href: ROUTES.dashboardAnalytics, icon: BarChart3 },
+  { name: 'Settings', href: ROUTES.dashboardSettings, icon: Settings },
+  { name: 'Help', href: ROUTES.dashboardHelp, icon: HelpCircle },
 ];
 
 export default function Layout() {
@@ -45,7 +46,7 @@ export default function Layout() {
         toast.success('Signed out successfully');
       }
       
-      navigate('/');
+      navigate(ROUTES.landing);
     } catch (error) {
       toast.error('Error signing out');
       console.error('Sign out error:', error);
@@ -63,26 +64,32 @@ export default function Layout() {
     <div className="h-screen bg-gray-50 flex overflow-hidden">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div 
-            className="fixed inset-0 bg-gray-600 bg-opacity-75" 
+        <div className="fixed inset-0 z-40 lg:hidden" aria-hidden={!sidebarOpen}>
+          <button
+            type="button"
+            className="absolute inset-0 w-full h-full bg-gray-900/60 backdrop-blur-sm"
             onClick={() => setSidebarOpen(false)}
+            aria-label="Close navigation menu"
           />
         </div>
       )}
 
       {/* Sidebar */}
-      <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed lg:static inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transition-transform duration-300 ease-in-out`}>
+      <div
+        id="dashboard-sidebar"
+        className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transition-transform duration-300 ease-in-out focus:outline-none`}
+      >
         <div className="flex flex-col h-full">
           {/* Logo and close button */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <Link to="/dashboard" className="flex items-center space-x-2">
+            <Link to={ROUTES.dashboard} className="flex items-center space-x-2">
               <TrendingUp className="h-8 w-8 text-blue-600" />
               <span className="text-xl font-bold text-gray-900">ResellTrack</span>
             </Link>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              aria-label="Close menu"
             >
               <X className="h-5 w-5" />
             </button>
@@ -110,13 +117,13 @@ export default function Layout() {
               return (
                 <Link
                   key={item.name}
-                  id={item.name.toLowerCase() === 'products' ? 'products-link' : 
+                  id={item.name.toLowerCase() === 'products' ? 'products-link' :
                       item.name.toLowerCase() === 'meetings' ? 'meetings-link' : undefined}
                   to={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    active 
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700' 
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
+                    active
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
@@ -141,24 +148,27 @@ export default function Layout() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col lg:ml-0">
+      <div className="flex-1 flex flex-col lg:ml-0 lg:pl-64">
         {/* Top header */}
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                aria-label="Open navigation menu"
+                aria-controls="dashboard-sidebar"
+                aria-expanded={sidebarOpen}
               >
                 <Menu className="h-5 w-5" />
               </button>
               
               {/* Breadcrumb */}
               <nav className="flex items-center space-x-2 text-sm">
-                <Link to="/dashboard" className="text-gray-500 hover:text-gray-700">
+                <Link to={ROUTES.dashboard} className="text-gray-500 hover:text-gray-700">
                   Dashboard
                 </Link>
-                {location.pathname !== '/dashboard' && (
+                {location.pathname !== ROUTES.dashboard && (
                   <>
                     <span className="text-gray-400">/</span>
                     <span className="text-gray-900 font-medium capitalize">
@@ -173,7 +183,7 @@ export default function Layout() {
             <div className="flex items-center space-x-4">
               {isDemoMode && (
                 <Link
-                  to="/pricing"
+                  to={ROUTES.pricing}
                   className="px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
                 >
                   Upgrade to Pro

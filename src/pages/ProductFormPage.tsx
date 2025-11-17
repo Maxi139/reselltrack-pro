@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import ProductForm from '../components/ProductForm';
 import { dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { ROUTES } from '../routes';
 
 export default function ProductFormPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const location = useLocation();
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const isEditing = !!id;
+  const searchParams = new URLSearchParams(location.search);
+  const templateId = searchParams.get('template');
+  const isDuplicating = !!templateId && !isEditing;
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', id],
@@ -24,6 +29,17 @@ export default function ProductFormPage() {
     enabled: !!id
   });
 
+  const { data: templateProduct, isLoading: isTemplateLoading } = useQuery({
+    queryKey: ['product-template', templateId],
+    queryFn: async () => {
+      if (!templateId) return null;
+      const { data, error } = await dbHelpers.getProduct(templateId);
+      if (error) throw error;
+      return data;
+    },
+    enabled: isDuplicating
+  });
+
   const createMutation = useMutation({
     mutationFn: async (formData: any) => {
       if (!user?.id) throw new Error('User not authenticated');
@@ -31,11 +47,13 @@ export default function ProductFormPage() {
       const productData = {
         ...formData,
         user_id: user.id,
+        listing_price: formData.listing_price ?? null,
+        purchase_price: formData.purchase_price ?? null,
         tags: formData.tags ? formData.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [],
-        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price 
-          ? formData.listing_price - formData.purchase_price 
+        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price
+          ? formData.listing_price - formData.purchase_price
           : null,
-        sold_price: formData.status === 'sold' ? formData.listing_price : null
+        sold_price: formData.status === 'sold' && formData.listing_price ? formData.listing_price : null
       };
 
       const { error } = await dbHelpers.createProduct(productData);
@@ -45,7 +63,7 @@ export default function ProductFormPage() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('Product created successfully!');
-      navigate('/products');
+      navigate(ROUTES.dashboardProducts);
     },
     onError: (error) => {
       toast.error('Failed to create product');
@@ -59,11 +77,13 @@ export default function ProductFormPage() {
       
       const productData = {
         ...formData,
+        listing_price: formData.listing_price ?? null,
+        purchase_price: formData.purchase_price ?? null,
         tags: formData.tags ? formData.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [],
-        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price 
-          ? formData.listing_price - formData.purchase_price 
+        profit: formData.status === 'sold' && formData.listing_price && formData.purchase_price
+          ? formData.listing_price - formData.purchase_price
           : null,
-        sold_price: formData.status === 'sold' ? formData.listing_price : null
+        sold_price: formData.status === 'sold' && formData.listing_price ? formData.listing_price : null
       };
 
       const { error } = await dbHelpers.updateProduct(id, productData);
@@ -74,7 +94,7 @@ export default function ProductFormPage() {
       queryClient.invalidateQueries({ queryKey: ['product', id] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       toast.success('Product updated successfully!');
-      navigate('/products');
+      navigate(ROUTES.dashboardProducts);
     },
     onError: (error) => {
       toast.error('Failed to update product');
@@ -91,10 +111,21 @@ export default function ProductFormPage() {
   };
 
   const handleCancel = () => {
-    navigate('/products');
+    navigate(ROUTES.dashboardProducts);
   };
 
-  if (isEditing && isLoading) {
+  const initialProduct = useMemo(() => {
+    if (product) return product;
+    if (templateProduct) {
+      return {
+        ...templateProduct,
+        name: templateProduct.name ? `${templateProduct.name} (copy)` : ''
+      };
+    }
+    return null;
+  }, [product, templateProduct]);
+
+  if ((isEditing && isLoading) || (isDuplicating && isTemplateLoading)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -107,11 +138,7 @@ export default function ProductFormPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ProductForm
-        product={product}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel}
-      />
+      <ProductForm product={initialProduct ?? undefined} onSubmit={handleSubmit} onCancel={handleCancel} />
     </div>
   );
 }

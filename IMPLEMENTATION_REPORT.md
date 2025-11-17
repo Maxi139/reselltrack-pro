@@ -6,6 +6,21 @@ Diese Dokumentation beschreibt die umfassende Überarbeitung der Homepage und Ve
 
 ## Durchgeführte Arbeiten
 
+### Modern Flow & Landing Refresh (2024-05)
+
+- **Landing Page**: Kompletter Rebuild mit dunklem Glaslook, animierten Karten und klaren Flow-, Feature-, Testimonial- und Pricing-Sektionen. Buttons führen jetzt konsequent zu Demo & Auth, mobile Navigation nutzt überdeckende Menüs.
+- **Produktübersicht**: Neue Hero-Fläche erklärt den Flow, Stat-Karten zeigen Kennzahlen, Filter/Timeline-Karten veranschaulichen Re-Listing und Quick Actions. Produktkarten sind hell, mit Profit-Modulen, Reuse-Buttons und Demo-Gating.
+- **Produktform**: Aus dem bisherigen 2-Step-Modal wurde ein dreistufiger Vollbild-Flow (Name → Visuals → Preis optional) mit Progressbar, optionalen Feldern und Skip-Buttons. Nur der Titel ist Pflicht.
+- **Re-Listing**: Jeder Datensatz besitzt jetzt einen "Details erneut nutzen"-Button, der das Formular mit einem Template (`?template=<id>`) öffnet – ideal für wiederkehrende Listings.
+- **Demo-Schutz**: Alle neuen Buttons prüfen `isDemoMode` und zeigen statt mutierender Aktionen einen freundlichen Hinweis.
+
+### Modernisierte Produkt Experience (✅ Neu)
+
+- Neue Inventory-Übersichtsseite mit glasigen Stat-Karten, pill-basierten Quick-Filtern und responsiven Produktkarten. Die CTA "Plan pickup" führt direkt zu Meetings und der Primary-CTA ist jetzt ein leuchtender Gradient-Button.
+- Produktliste enthält jetzt einen klaren Flow zum "Als verkauft" markieren. Ein Fokus-Dialog sammelt Verkaufspreis + Datum, berechnet die Marge automatisch und erklärt Demo-Benutzer:innen, warum Aktionen gesperrt sind.
+- Quick Actions (View, Edit, Delete, Mark sold) erhielten größere Touch-Zonen, Fokus-Ringe und Kontextfarben. Leere Zustände motivieren zum Hinzufügen von Artikeln ohne sofortigen Verkaufspreis.
+- Der Produkt-Formular-Dialog nutzt nun einen 2-stufigen Flow (Details → Pricing), optionale Preisfelder und moderne Komponenten (Step-Indicator, weiche Karten, neue Notes-Sektion). Listing- und Purchase-Preis werden nur gespeichert, wenn angegeben.
+
 ### 1. Layout-Anpassungen (✅ Abgeschlossen)
 
 **Problem:** Ausschließlich linksorientierte Ausrichtung der Inhalte
@@ -317,6 +332,13 @@ Die Implementierung wurde erfolgreich abgeschlossen und steht für die Produktio
 
 ---
 
-**Erstellt am:** 16. November 2024  
-**Version:** 1.0.0  
+**Erstellt am:** 16. November 2024
+**Version:** 1.0.0
 **Status:** Vollständig implementiert und getestet
+
+## 2024-05-XX Dashboard & Demo-Modus Feinschliff
+
+- Einheitliche Routing-Konstanten (`src/routes.ts`) eingeführt und in allen Dashboard-Links verwendet, damit Formularseiten konsequent unter `/dashboard/*` geladen werden.
+- Neue Placeholder-Seiten für Analytics, Settings und Help hinzugefügt, damit Sidebar-Einträge nicht mehr auf eine 404-Weiterleitung verweisen.
+- Landing-Page hinsichtlich Responsiveness, Abständen und CTA-Verlinkungen überarbeitet (Hero-Buttons, Karten-Abstände, CTA-Sektion).
+- Dashboard-Layout auf Mobilgeräten verbessert (vollflächiger Overlay, Fokuszustände) und Demo-Mode-Guardrails für Produkte, Meetings und Schnellaktionen ergänzt inklusive Toast/Tooltip-Hinweisen.

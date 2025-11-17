@@ -6,6 +6,8 @@ import { supabase, dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, formatDate } from '../utils/formatters';
 import TutorialOverlay from '../components/TutorialOverlay';
+import { ROUTES } from '../routes';
+import { notifyDemoRestriction } from '../utils/demoMode';
 
 interface DashboardStats {
   totalProducts: number;
@@ -24,6 +26,7 @@ interface DashboardStats {
 export default function Dashboard() {
   const { user, subscriptionTier, isDemoMode } = useAuthStore();
   const [showTutorial, setShowTutorial] = useState(true);
+  const handleDemoAction = (action: string) => notifyDemoRestriction(action);
 
   const handleTutorialComplete = () => {
     setShowTutorial(false);
@@ -177,7 +180,7 @@ export default function Dashboard() {
                 </p>
                 <div className="mt-3">
                   <Link
-                    to="/pricing"
+                    to={ROUTES.pricing}
                     className="inline-flex items-center px-6 py-3 bg-gradient-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow"
                   >
                     Upgrade to Pro
@@ -231,7 +234,7 @@ export default function Dashboard() {
               <div className="px-8 py-6 border-b border-slate-200 dark:border-dark-700 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Recent Products</h2>
                 <Link
-                  to="/products"
+                  to={ROUTES.dashboardProducts}
                   className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-semibold flex items-center group transition-colors"
                 >
                   View all
@@ -282,9 +285,19 @@ export default function Dashboard() {
                         ? 'Demo products will appear here automatically.'
                         : 'Start adding products to track your reselling business.'}
                     </p>
-                    {!isDemoMode && (
+                    {isDemoMode ? (
+                      <button
+                        type="button"
+                        onClick={() => handleDemoAction('Creating products')}
+                        className="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-600 font-semibold rounded-xl cursor-not-allowed"
+                        aria-disabled
+                      >
+                        <Plus className="h-5 w-5 mr-2" />
+                        Add Your First Product
+                      </button>
+                    ) : (
                       <Link
-                        to="/products/new"
+                        to={ROUTES.dashboardProductNew}
                         className="inline-flex items-center px-6 py-3 bg-gradient-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow"
                       >
                         <Plus className="h-5 w-5 mr-2" />
@@ -303,7 +316,7 @@ export default function Dashboard() {
               <div className="px-8 py-6 border-b border-slate-200 dark:border-dark-700 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Upcoming Meetings</h2>
                 <Link
-                  to="/meetings"
+                  to={ROUTES.dashboardMeetings}
                   className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 font-semibold flex items-center group transition-colors"
                 >
                   View all
@@ -346,9 +359,19 @@ export default function Dashboard() {
                         ? 'Demo meetings will appear here automatically.'
                         : 'Schedule meetings to manage your client interactions.'}
                     </p>
-                    {!isDemoMode && (
+                    {isDemoMode ? (
+                      <button
+                        type="button"
+                        onClick={() => handleDemoAction('Scheduling meetings')}
+                        className="inline-flex items-center px-6 py-3 bg-gray-200 text-gray-600 font-semibold rounded-xl cursor-not-allowed"
+                        aria-disabled
+                      >
+                        <Plus className="h-5 w-5 mr-2" />
+                        Schedule Meeting
+                      </button>
+                    ) : (
                       <Link
-                        to="/meetings/new"
+                        to={ROUTES.dashboardMeetingNew}
                         className="inline-flex items-center px-6 py-3 bg-gradient-info text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow"
                       >
                         <Plus className="h-5 w-5 mr-2" />
@@ -366,23 +389,47 @@ export default function Dashboard() {
                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">Quick Actions</h2>
               </div>
               <div className="p-8 space-y-4">
-                <Link
-                  to="/products/new"
-                  className="w-full flex items-center justify-center px-6 py-4 bg-gradient-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow group"
-                >
-                  <Plus className="h-5 w-5 mr-3 group-hover:rotate-90 transition-transform" />
-                  Add New Product
-                </Link>
-                <Link
-                  to="/meetings/new"
-                  className="w-full flex items-center justify-center px-6 py-4 bg-white dark:bg-dark-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border-2 border-slate-200 dark:border-dark-600 hover:bg-slate-50 dark:hover:bg-dark-600 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-200 group"
-                >
-                  <Calendar className="h-5 w-5 mr-3 text-primary-600" />
-                  Schedule Meeting
-                </Link>
+                {isDemoMode ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDemoAction('Creating products')}
+                    className="w-full flex items-center justify-center px-6 py-4 bg-gray-200 text-gray-600 font-semibold rounded-xl cursor-not-allowed"
+                    aria-disabled
+                  >
+                    <Plus className="h-5 w-5 mr-3" />
+                    Add New Product
+                  </button>
+                ) : (
+                  <Link
+                    to={ROUTES.dashboardProductNew}
+                    className="w-full flex items-center justify-center px-6 py-4 bg-gradient-primary text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow group"
+                  >
+                    <Plus className="h-5 w-5 mr-3 group-hover:rotate-90 transition-transform" />
+                    Add New Product
+                  </Link>
+                )}
+                {isDemoMode ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDemoAction('Scheduling meetings')}
+                    className="w-full flex items-center justify-center px-6 py-4 bg-gray-200 text-gray-600 font-semibold rounded-xl cursor-not-allowed"
+                    aria-disabled
+                  >
+                    <Calendar className="h-5 w-5 mr-3" />
+                    Schedule Meeting
+                  </button>
+                ) : (
+                  <Link
+                    to={ROUTES.dashboardMeetingNew}
+                    className="w-full flex items-center justify-center px-6 py-4 bg-white dark:bg-dark-700 text-slate-700 dark:text-slate-200 font-semibold rounded-xl border-2 border-slate-200 dark:border-dark-600 hover:bg-slate-50 dark:hover:bg-dark-600 hover:border-primary-300 dark:hover:border-primary-600 transition-all duration-200 group"
+                  >
+                    <Calendar className="h-5 w-5 mr-3 text-primary-600" />
+                    Schedule Meeting
+                  </Link>
+                )}
                 {!isDemoMode && subscriptionTier === 'free' && (
                   <Link
-                    to="/pricing"
+                    to={ROUTES.pricing}
                     className="w-full flex items-center justify-center px-6 py-4 bg-gradient-success text-white font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-glow group"
                   >
                     <TrendingUp className="h-5 w-5 mr-3 group-hover:scale-110 transition-transform" />
