@@ -1,26 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import {
-  Plus,
-  Search,
-  Edit,
-  Trash2,
-  Eye,
-  DollarSign,
-  Package,
-  Tag,
-  Calendar,
-  Sparkles,
-  CheckCircle2
-} from 'lucide-react';
-import { toast } from 'sonner';
+import { Plus, Search, Edit, Trash2, Eye, DollarSign, Package, Tag, Calendar } from 'lucide-react';
 import { dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { formatCurrency, formatDate, formatPercentage } from '../utils/formatters';
 import { ROUTES } from '../routes';
 import { notifyDemoRestriction } from '../utils/demoMode';
-import MarkAsSoldDialog from '../components/MarkAsSoldDialog';
 
 interface ProductFilters {
   status: string;
@@ -163,6 +149,10 @@ export default function Products() {
     notifyDemoRestriction(action);
   };
 
+  const handleDemoAction = (action: string) => {
+    notifyDemoRestriction(action);
+  };
+
   const handleDelete = (productId: string) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       deleteMutation.mutate(productId);
@@ -280,10 +270,23 @@ export default function Products() {
                 : 'Keep every listing, offer and sale in one elegant, filterable surface.'}
             </p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          {isDemoMode ? (
+            <button
+              type="button"
+              id="add-product-btn"
+              onClick={() => handleDemoAction('Creating products')}
+              className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-600 text-sm font-medium rounded-lg cursor-not-allowed"
+              aria-disabled
+              title="Demo mode"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Product
+            </button>
+          ) : (
             <Link
-              to={ROUTES.dashboardMeetings}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-600 transition hover:bg-white"
+              id="add-product-btn"
+              to={ROUTES.dashboardProductNew}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
             >
               <Sparkles className="mr-2 h-4 w-4 text-primary-500" />
               Plan pickup
@@ -446,66 +449,43 @@ export default function Products() {
                           )}
                         </div>
                       </div>
-                      <div className="flex flex-col gap-3 lg:w-72">
-                        <div className="rounded-2xl bg-slate-50 p-4 text-right">
-                          <p className="text-xs uppercase tracking-wider text-slate-400">Listed</p>
-                          <p className="text-2xl font-semibold text-slate-900">
-                            {product.listing_price ? formatCurrency(product.listing_price) : '—'}
-                          </p>
-                          {product.sold_price && (
-                            <p className="text-sm font-semibold text-success-600">
-                              Sold for {formatCurrency(product.sold_price)}
-                            </p>
-                          )}
-                          {product.profit && (
-                            <p className="text-xs text-success-500">Profit {formatCurrency(product.profit)}</p>
-                          )}
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Link
-                            to={ROUTES.dashboardProductDetail(product.id)}
-                            className="inline-flex items-center rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-                          >
-                            <Eye className="mr-2 h-3 w-3" /> View
-                          </Link>
-                          {isDemoMode ? (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => handleDemoAction('Editing products')}
-                                className="inline-flex items-center rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-400"
-                                aria-disabled
-                              >
-                                <Edit className="mr-2 h-3 w-3" /> Edit
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDemoAction('Deleting products')}
-                                className="inline-flex items-center rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-400"
-                                aria-disabled
-                              >
-                                <Trash2 className="mr-2 h-3 w-3" /> Delete
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <Link
-                                to={ROUTES.dashboardProductEdit(product.id)}
-                                className="inline-flex items-center rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-                              >
-                                <Edit className="mr-2 h-3 w-3" /> Edit
-                              </Link>
-                              <button
-                                type="button"
-                                onClick={() => handleDelete(product.id)}
-                                disabled={deleteMutation.isPending}
-                                className="inline-flex items-center rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-red-50 hover:text-red-600 disabled:opacity-60"
-                              >
-                                <Trash2 className="mr-2 h-3 w-3" /> Delete
-                              </button>
-                            </>
-                          )}
-                          {product.status !== 'sold' && (
+                      
+                      <div className="flex items-center space-x-2">
+                        <Link
+                          to={ROUTES.dashboardProductDetail(product.id)}
+                          className="p-2 text-gray-400 hover:text-gray-600"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                        {isDemoMode ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleDemoAction('Editing products')}
+                              className="p-2 text-gray-300 cursor-not-allowed"
+                              aria-disabled
+                              title="Demo mode"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDemoAction('Deleting products')}
+                              className="p-2 text-gray-300 cursor-not-allowed"
+                              aria-disabled
+                              title="Demo mode"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <Link
+                              to={ROUTES.dashboardProductEdit(product.id)}
+                              className="p-2 text-gray-400 hover:text-gray-600"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Link>
                             <button
                               type="button"
                               onClick={() => (isDemoMode ? handleDemoAction('Marking products as sold') : openMarkSoldFlow(product))}
@@ -518,7 +498,60 @@ export default function Products() {
                       </div>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                {isDemoMode ? 'No demo products available' : 'No products found'}
+              </h3>
+              <p className="text-gray-500 mb-6">
+                {isDemoMode
+                  ? 'Demo products will appear here automatically.'
+                  : filters.search || filters.status !== 'all' || filters.category !== 'all'
+                  ? 'Try adjusting your search or filter criteria.'
+                  : 'Get started by adding your first product.'}
+              </p>
+              {isDemoMode ? (
+                <button
+                  type="button"
+                  onClick={() => handleDemoAction('Creating products')}
+                  className="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-600 text-sm font-medium rounded-lg cursor-not-allowed"
+                  aria-disabled
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </button>
+              ) : (
+                <Link
+                  to={ROUTES.dashboardProductNew}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Product
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Summary Stats */}
+        {products && products.length > 0 && (
+          <div className="mt-6 bg-white rounded-lg shadow-sm p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">
+                  {products.length}
+                </div>
+                <div className="text-sm text-gray-500">Total Products</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {products.filter(p => p.status === 'sold').length}
+                </div>
+                <div className="text-sm text-gray-500">Sold</div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
