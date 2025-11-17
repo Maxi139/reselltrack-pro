@@ -27,6 +27,134 @@ const navigation = [
   { name: 'Help', href: ROUTES.dashboardHelp, icon: HelpCircle },
 ];
 
+type SidebarPanelProps = {
+  userName: string;
+  subscriptionLabel: string;
+  isDemoMode: boolean;
+  onSignOut: () => void;
+  currentPath: string;
+  onNavigate?: () => void;
+  onClose?: () => void;
+};
+
+const SidebarPanel: React.FC<SidebarPanelProps> = ({
+  userName,
+  subscriptionLabel,
+  isDemoMode,
+  onSignOut,
+  currentPath,
+  onNavigate,
+  onClose
+}) => {
+  return (
+    <div className="flex h-full flex-col rounded-[32px] border border-white/30 bg-white/90 p-2 text-slate-900 shadow-2xl backdrop-blur-3xl">
+      <div className="rounded-[28px] bg-white/90 p-6 shadow-lg">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white shadow-lg">
+              <TrendingUp className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Workspace</p>
+              <p className="text-lg font-semibold text-slate-900">ResellTrack Pro</p>
+              <p className="text-xs text-slate-500">Growth control center</p>
+            </div>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="rounded-full p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+              aria-label="Close navigation"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        <div className="mt-6 rounded-2xl bg-slate-50 px-4 py-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-900 shadow">
+              <User className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-slate-500">Signed in as</p>
+              <p className="text-base font-semibold text-slate-900">{userName}</p>
+            </div>
+            <span className={`ml-auto inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+              isDemoMode
+                ? 'bg-blue-100 text-blue-800'
+                : subscriptionLabel === 'Pro'
+                ? 'bg-emerald-100 text-emerald-700'
+                : 'bg-slate-200 text-slate-700'
+            }`}>
+              {subscriptionLabel}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Navigation</span>
+          {isDemoMode && (
+            <span className="text-xs font-medium text-blue-600">Demo</span>
+          )}
+        </div>
+        <nav className="space-y-2">
+          {navigation.map((item) => {
+            const Icon = item.icon;
+            const active = currentPath === item.href;
+
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={() => {
+                  onNavigate?.();
+                }}
+                className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition-all ${
+                  active
+                    ? 'bg-slate-900 text-white shadow-xl'
+                    : 'text-slate-500 hover:bg-slate-100/80 hover:text-slate-900'
+                }`}
+              >
+                <div className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                  active ? 'bg-white/15 text-white' : 'bg-white text-slate-600 shadow'
+                }`}>
+                  <Icon className="h-4 w-4" />
+                </div>
+                <span>{item.name}</span>
+                {active && <span className="ml-auto h-2 w-2 rounded-full bg-emerald-400"></span>}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="px-6 pb-6 pt-4">
+        <div className="rounded-3xl border border-slate-100 bg-white p-5 text-center shadow-inner">
+          <p className="text-sm font-semibold text-slate-900">Upgrade for full access</p>
+          <p className="mt-1 text-xs text-slate-500">Unlock automation, analytics & more</p>
+          <Link
+            to={ROUTES.pricing}
+            onClick={() => onNavigate?.()}
+            className="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:opacity-90"
+          >
+            Upgrade plan
+          </Link>
+        </div>
+        <button
+          onClick={onSignOut}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-600 transition hover:border-slate-300 hover:text-slate-900"
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -36,7 +164,6 @@ export default function Layout() {
   const handleSignOut = async () => {
     try {
       if (isDemoMode) {
-        // Clear demo session data
         sessionStorage.removeItem('is_demo_mode');
         sessionStorage.removeItem('demo_user_id');
         toast.success('Demo session ended');
@@ -45,7 +172,7 @@ export default function Layout() {
         if (error) throw error;
         toast.success('Signed out successfully');
       }
-      
+
       navigate(ROUTES.landing);
     } catch (error) {
       toast.error('Error signing out');
@@ -53,188 +180,107 @@ export default function Layout() {
     }
   };
 
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User';
   const subscriptionLabel = isDemoMode ? 'Demo' : subscriptionTier === 'pro' ? 'Pro' : 'Free';
 
   return (
-    <div className="h-screen bg-gray-50 flex overflow-hidden">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden" aria-hidden={!sidebarOpen}>
-          <button
-            type="button"
-            className="absolute inset-0 w-full h-full bg-gray-900/60 backdrop-blur-sm"
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Close navigation menu"
-          />
-        </div>
-      )}
-
-      {/* Sidebar */}
-      <div
-        id="dashboard-sidebar"
-        className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transition-transform duration-300 ease-in-out lg:shadow-none lg:border-r lg:border-gray-200`}
-      >
-        <div className="flex flex-col h-full">
-          {/* Logo and close button */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <Link to={ROUTES.dashboard} className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                <TrendingUp className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <span className="text-xl font-bold text-gray-900">ResellTrack</span>
-                <p className="text-xs text-gray-500">Pro Dashboard</p>
-              </div>
-            </Link>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              aria-label="Close menu"
-            >
-              <X className="h-5 w-5" />
-            </button>
-          </div>
-
-          {/* User info */}
-          <div className="p-6 border-b border-gray-200 bg-gradient-to-br from-gray-50 to-blue-50">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center shadow-sm">
-                <User className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">{userName}</p>
-                <p className="text-xs text-gray-600">{subscriptionLabel} Plan</p>
-                <div className="mt-1">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                    isDemoMode ? 'bg-blue-100 text-blue-800' :
-                    subscriptionTier === 'pro' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {subscriptionLabel}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
-            <div className="px-3 py-2">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Navigation</h3>
-            </div>
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.href);
-              
-              return (
-                <Link
-                  key={item.name}
-                  id={item.name.toLowerCase() === 'products' ? 'products-link' :
-                      item.name.toLowerCase() === 'meetings' ? 'meetings-link' : undefined}
-                  to={item.href}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ${
-                    active
-                      ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm border border-blue-200'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 hover:shadow-sm'
-                  }`}
-                >
-                  <Icon className={`h-5 w-5 ${active ? 'text-blue-600' : ''}`} />
-                  <span>{item.name}</span>
-                  {active && (
-                    <div className="ml-auto">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                    </div>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
-
-          {/* Sign out button */}
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="px-3 py-2">
-              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Account</h3>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 w-full transition-all duration-200"
-            >
-              <LogOut className="h-5 w-5" />
-              <span>Sign Out</span>
-            </button>
-          </div>
-        </div>
+    <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-900">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-blue-500/20 blur-[120px]" />
+        <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-indigo-500/10 blur-[140px]" />
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col lg:ml-0 lg:pl-64">
-        {/* Top header */}
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-lg hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                aria-label="Open navigation menu"
-                aria-controls="dashboard-sidebar"
-                aria-expanded={sidebarOpen}
-              >
-                <Menu className="h-5 w-5" />
-              </button>
-              
-              {/* Breadcrumb */}
-              <nav className="flex items-center space-x-2 text-sm">
-                <Link to={ROUTES.dashboard} className="text-gray-500 hover:text-gray-700">
-                  Dashboard
-                </Link>
-                {location.pathname !== ROUTES.dashboard && (
-                  <>
-                    <span className="text-gray-400">/</span>
-                    <span className="text-gray-900 font-medium capitalize">
-                      {location.pathname.split('/').pop()?.replace('-', ' ')}
-                    </span>
-                  </>
-                )}
-              </nav>
+      <div className="relative z-10 flex min-h-screen">
+        {sidebarOpen && (
+          <div className="fixed inset-0 z-50 flex lg:hidden">
+            <button
+              className="absolute inset-0 bg-slate-900/70 backdrop-blur"
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Close navigation overlay"
+            />
+            <div className="relative ml-4 mr-8 mt-6 h-[calc(100%-3rem)] w-[320px] max-w-full">
+              <SidebarPanel
+                userName={userName}
+                subscriptionLabel={subscriptionLabel}
+                isDemoMode={isDemoMode}
+                onSignOut={handleSignOut}
+                currentPath={location.pathname}
+                onNavigate={() => setSidebarOpen(false)}
+                onClose={() => setSidebarOpen(false)}
+              />
             </div>
+          </div>
+        )}
 
-            {/* Right side actions */}
-            <div className="flex items-center space-x-4">
-              {isDemoMode && (
-                <Link
-                  to={ROUTES.pricing}
-                  className="px-3 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700"
+        <div className="hidden lg:flex lg:w-[360px] lg:flex-col lg:p-8">
+          <SidebarPanel
+            userName={userName}
+            subscriptionLabel={subscriptionLabel}
+            isDemoMode={isDemoMode}
+            onSignOut={handleSignOut}
+            currentPath={location.pathname}
+          />
+        </div>
+
+        <div className="flex flex-1 flex-col bg-white/80 backdrop-blur-xl">
+          <header className="border-b border-white/60 bg-white/80 backdrop-blur-xl">
+            <div className="flex items-center justify-between px-4 py-4 sm:px-6">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden rounded-2xl border border-slate-200 p-2 text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900"
+                  aria-label="Open navigation menu"
+                  aria-controls="dashboard-sidebar"
+                  aria-expanded={sidebarOpen}
                 >
-                  Upgrade to Pro
-                </Link>
-              )}
-              
-              <div className="flex items-center space-x-2">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  isDemoMode 
-                    ? 'bg-blue-100 text-blue-800'
-                    : subscriptionTier === 'pro' 
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
+                  <Menu className="h-5 w-5" />
+                </button>
+
+                <nav className="flex items-center gap-2 text-sm text-slate-500">
+                  <Link to={ROUTES.dashboard} className="font-medium text-slate-600 hover:text-slate-900">
+                    Dashboard
+                  </Link>
+                  {location.pathname !== ROUTES.dashboard && (
+                    <>
+                      <span className="text-slate-400">/</span>
+                      <span className="font-semibold capitalize text-slate-900">
+                        {location.pathname.split('/').pop()?.replace('-', ' ')}
+                      </span>
+                    </>
+                  )}
+                </nav>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {isDemoMode && (
+                  <Link
+                    to={ROUTES.pricing}
+                    className="hidden sm:inline-flex items-center rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-900"
+                  >
+                    Unlock full access
+                  </Link>
+                )}
+                <span
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
+                    isDemoMode
+                      ? 'bg-blue-50 text-blue-700'
+                      : subscriptionLabel === 'Pro'
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'bg-slate-100 text-slate-700'
+                  }`}
+                >
                   {subscriptionLabel}
                 </span>
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-6">
-            <Outlet />
-          </div>
-        </main>
+          <main className="flex-1 overflow-y-auto">
+            <div className="p-6 lg:p-8">
+              <Outlet />
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   );
