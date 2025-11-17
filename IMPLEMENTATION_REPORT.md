@@ -6,14 +6,6 @@ Diese Dokumentation beschreibt die umfassende Überarbeitung der Homepage und Ve
 
 ## Durchgeführte Arbeiten
 
-### Modern Flow & Landing Refresh (2024-05)
-
-- **Landing Page**: Kompletter Rebuild mit dunklem Glaslook, animierten Karten und klaren Flow-, Feature-, Testimonial- und Pricing-Sektionen. Buttons führen jetzt konsequent zu Demo & Auth, mobile Navigation nutzt überdeckende Menüs.
-- **Produktübersicht**: Neue Hero-Fläche erklärt den Flow, Stat-Karten zeigen Kennzahlen, Filter/Timeline-Karten veranschaulichen Re-Listing und Quick Actions. Produktkarten sind hell, mit Profit-Modulen, Reuse-Buttons und Demo-Gating.
-- **Produktform**: Aus dem bisherigen 2-Step-Modal wurde ein dreistufiger Vollbild-Flow (Name → Visuals → Preis optional) mit Progressbar, optionalen Feldern und Skip-Buttons. Nur der Titel ist Pflicht.
-- **Re-Listing**: Jeder Datensatz besitzt jetzt einen "Details erneut nutzen"-Button, der das Formular mit einem Template (`?template=<id>`) öffnet – ideal für wiederkehrende Listings.
-- **Demo-Schutz**: Alle neuen Buttons prüfen `isDemoMode` und zeigen statt mutierender Aktionen einen freundlichen Hinweis.
-
 ### Modernisierte Produkt Experience (✅ Neu)
 
 - Neue Inventory-Übersichtsseite mit glasigen Stat-Karten, pill-basierten Quick-Filtern und responsiven Produktkarten. Die CTA "Plan pickup" führt direkt zu Meetings und der Primary-CTA ist jetzt ein leuchtender Gradient-Button.

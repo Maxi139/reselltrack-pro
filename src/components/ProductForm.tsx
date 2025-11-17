@@ -1,74 +1,71 @@
-import React, { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { ArrowLeft, Check, Image as ImageIcon, NotebookPen, Sparkles, Tag, Upload } from 'lucide-react';
+import React, { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { X, Upload, DollarSign, Package, Tag, FileText, Camera, Sparkles } from 'lucide-react'
 
 const priceField = z.preprocess((value) => {
-  if (value === '' || value === null || typeof value === 'undefined') return undefined;
-  if (typeof value === 'number') return value;
-  const parsed = Number(value);
-  return Number.isNaN(parsed) ? undefined : parsed;
-}, z.number().positive('Price must be positive').optional());
+  if (value === '' || value === null || typeof value === 'undefined') return undefined
+  if (typeof value === 'number') return value
+  const parsed = Number(value)
+  return Number.isNaN(parsed) ? undefined : parsed
+}, z.number().positive('Price must be positive').optional())
 
 const productSchema = z.object({
   name: z.string().min(1, 'Product name is required').max(120, 'Name too long'),
   description: z.string().max(500, 'Description too long').optional(),
-  category: z.string().max(60, 'Category too long').optional(),
+  category: z.string().min(1, 'Category is required'),
   listing_price: priceField,
   purchase_price: priceField,
-  platform: z.string().max(60, 'Platform too long').optional(),
-  status: z.enum(['listed', 'sold', 'pending', 'expired']).default('listed'),
-  condition: z.enum(['new', 'like_new', 'good', 'fair', 'poor']).default('good'),
+  platform: z.string().min(1, 'Platform is required'),
+  status: z.enum(['listed', 'sold', 'pending', 'expired']),
+  condition: z.enum(['new', 'like_new', 'good', 'fair', 'poor']),
   tags: z.string().optional(),
   notes: z.string().max(1000, 'Notes too long').optional()
-});
+})
 
-export type ProductFormData = z.infer<typeof productSchema>;
+type ProductFormData = z.infer<typeof productSchema>
 
 interface ProductFormProps {
-  product?: any;
-  onSubmit: (data: ProductFormData) => Promise<void>;
-  onCancel: () => void;
+  product?: any
+  onSubmit: (data: ProductFormData) => Promise<void>
+  onCancel: () => void
 }
 
-const conditionOptions = [
-  { value: 'new', label: 'Brand new' },
-  { value: 'like_new', label: 'Like new' },
+const categories = [
+  'Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books', 'Toys',
+  'Collectibles', 'Automotive', 'Health & Beauty', 'Other'
+]
+
+const platforms = [
+  'eBay', 'Facebook Marketplace', 'Craigslist', 'OfferUp', 'Mercari',
+  'Poshmark', 'Depop', 'Etsy', 'Amazon', 'Local', 'Other'
+]
+
+const conditions = [
+  { value: 'new', label: 'New' },
+  { value: 'like_new', label: 'Like New' },
   { value: 'good', label: 'Good' },
   { value: 'fair', label: 'Fair' },
-  { value: 'poor', label: 'Well loved' }
-];
+  { value: 'poor', label: 'Poor' }
+]
 
-const statusOptions = [
-  { value: 'listed', label: 'Ready to sell' },
-  { value: 'pending', label: 'In talks' },
-  { value: 'sold', label: 'Sold' },
-  { value: 'expired', label: 'Archived' }
-];
-
-const quickCategories = ['Tech', 'Fashion', 'Home', 'Collectibles'];
+const statuses = [
+  { value: 'listed', label: 'Listed', color: 'blue' },
+  { value: 'sold', label: 'Sold', color: 'green' },
+  { value: 'pending', label: 'Pending', color: 'yellow' },
+  { value: 'expired', label: 'Expired', color: 'red' }
+]
 
 const steps = [
-  {
-    id: 1,
-    title: 'Name it',
-    description: 'Start with the product title',
-    icon: Sparkles
-  },
-  {
-    id: 2,
-    title: 'Show it',
-    description: 'Add visuals & context',
-    icon: ImageIcon
-  },
-  {
-    id: 3,
-    title: 'Price it',
-    description: 'Optional pricing & notes',
-    icon: NotebookPen
-  }
-];
+  { id: 1, title: 'Product Details', description: 'Basics, media & tags' },
+  { id: 2, title: 'Pricing & Status', description: 'Financials & platform' }
+]
+
+const stepFieldMap: Record<number, (keyof ProductFormData)[]> = {
+  1: ['name', 'category', 'condition', 'description', 'tags'],
+  2: ['platform', 'status', 'listing_price', 'purchase_price', 'notes']
+}
 
 const stepFieldMap: Record<number, (keyof ProductFormData)[]> = {
   1: ['name'],
@@ -77,9 +74,9 @@ const stepFieldMap: Record<number, (keyof ProductFormData)[]> = {
 };
 
 export default function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeStep, setActiveStep] = useState(1);
-  const [imagePreview, setImagePreview] = useState<string | null>(product?.image_url ?? null);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(product?.image_url ?? null)
+  const [activeStep, setActiveStep] = useState(1)
 
   const {
     register,
@@ -89,368 +86,371 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
     trigger
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
-    defaultValues: {
-      name: product?.name || '',
-      description: product?.description || '',
-      category: product?.category || '',
-      listing_price: product?.listing_price ? Number(product.listing_price) : undefined,
-      purchase_price: product?.purchase_price ? Number(product.purchase_price) : undefined,
-      platform: product?.platform || '',
-      status: (product?.status as ProductFormData['status']) || 'listed',
-      condition: (product?.condition as ProductFormData['condition']) || 'good',
-      tags: product?.tags?.join ? product.tags.join(', ') : product?.tags || '',
-      notes: product?.notes || ''
-    }
-  });
+    defaultValues: product
+      ? {
+          ...product,
+          listing_price: product.listing_price ? Number(product.listing_price) : undefined,
+          purchase_price: product.purchase_price ? Number(product.purchase_price) : undefined,
+          tags: product.tags?.join(', ')
+        }
+      : {
+          status: 'listed',
+          condition: 'good'
+        }
+  })
 
-  const watchedListingPrice = watch('listing_price');
-  const watchedPurchasePrice = watch('purchase_price');
-  const watchedStatus = watch('status');
-
-  const projectedProfit = useMemo(() => {
-    if (watchedListingPrice && watchedPurchasePrice) {
-      return watchedListingPrice - watchedPurchasePrice;
-    }
-    return null;
-  }, [watchedListingPrice, watchedPurchasePrice]);
+  const watchedStatus = watch('status')
+  const watchedListingPrice = watch('listing_price')
+  const watchedPurchasePrice = watch('purchase_price')
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const goToStep = async (direction: 'next' | 'back') => {
-    if (direction === 'next') {
-      const fields = stepFieldMap[activeStep];
-      if (fields?.length) {
-        const isValid = await trigger(fields);
-        if (!isValid) return;
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
       }
-      setActiveStep((prev) => Math.min(prev + 1, steps.length));
-    } else {
-      setActiveStep((prev) => Math.max(prev - 1, 1));
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const handleSkip = () => {
     setActiveStep((prev) => Math.min(prev + 1, steps.length));
   };
 
   const onFormSubmit = async (data: ProductFormData) => {
-    setIsSubmitting(true);
+    setIsSubmitting(true)
     try {
-      await onSubmit({
-        ...data,
-        tags: data.tags?.trim() ? data.tags : undefined
-      });
+      await onSubmit(data)
     } catch (error) {
-      console.error('Error submitting product:', error);
+      console.error('Error submitting product:', error)
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
-  const progress = (activeStep / steps.length) * 100;
-  const isLastStep = activeStep === steps.length;
+  const calculateProfit = () => {
+    if (watchedListingPrice && watchedPurchasePrice && watchedStatus === 'sold') {
+      return watchedListingPrice - watchedPurchasePrice
+    }
+    return null
+  }
+
+  const profit = calculateProfit()
+
+  const handleNext = async () => {
+    const isValid = await trigger(stepFieldMap[activeStep])
+    if (isValid) {
+      setActiveStep((prev) => Math.min(prev + 1, steps.length))
+    }
+  }
+
+  const handlePrevious = () => {
+    setActiveStep((prev) => Math.max(prev - 1, 1))
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-900 text-slate-50 py-10 px-4">
-      <div className="mx-auto max-w-4xl rounded-3xl bg-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.35)] backdrop-blur-xl border border-white/10">
-        <div className="border-b border-white/10 p-6 sm:p-8 flex flex-col gap-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-indigo-200">Guided flow</p>
-              <h1 className="mt-2 text-3xl font-bold text-white">
-                {product?.id ? 'Update product' : 'Add a new product'}
-              </h1>
-              <p className="mt-2 text-sm text-indigo-100">
-                Answer one bite-sized question per step. You can always come back later to enrich the details.
-              </p>
-            </div>
-            <button
-              onClick={onCancel}
-              className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
-            >
-              Close
-            </button>
-          </div>
-
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 px-4 py-8 backdrop-blur">
+      <div className="w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
           <div>
-            <div className="h-1.5 w-full rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-gradient-to-r from-sky-400 to-violet-500 transition-all" style={{ width: `${progress}%` }} />
-            </div>
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
-              {steps.map((step) => {
-                const Icon = step.icon;
-                const isActive = activeStep === step.id;
-                const isComplete = activeStep > step.id;
-                return (
-                  <div
-                    key={step.id}
-                    className={`rounded-2xl border px-4 py-3 text-sm transition ${
-                      isActive
-                        ? 'border-white/60 bg-white/10 text-white shadow-glow'
-                        : isComplete
-                        ? 'border-emerald-300/40 bg-emerald-400/10 text-emerald-100'
-                        : 'border-white/5 bg-white/5 text-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-2xl ${isComplete ? 'bg-emerald-400/20' : 'bg-white/10'}`}>
-                        {isComplete ? <Check className="h-5 w-5" /> : <Icon className="h-5 w-5" />}
-                      </div>
-                      <div>
-                        <p className="font-semibold">{step.title}</p>
-                        <p className="text-xs text-slate-300">{step.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary-500">Product Flow</p>
+            <h2 className="text-2xl font-bold text-slate-900">
+              {product ? 'Update product' : 'Add new product'}
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">Modern, guided steps keep everything tidy and fast.</p>
           </div>
+          <button
+            onClick={onCancel}
+            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+          >
+            <X className="h-5 w-5" />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-8 p-6 sm:p-10">
-          {activeStep === 1 && (
-            <div className="space-y-6">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-inner">
-                <label htmlFor="name" className="text-sm font-semibold text-white">
-                  Give your product a name
-                </label>
-                <input
-                  id="name"
-                  type="text"
-                  placeholder="e.g. iPhone 15 Pro Max"
-                  {...register('name')}
-                  className="mt-3 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-base text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
-                />
-                {errors.name && <p className="mt-2 text-sm text-rose-300">{errors.name.message}</p>}
-                <p className="mt-3 text-sm text-slate-200">Only the title is required to get started.</p>
-              </div>
+        <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-4">
+          <ol className="flex flex-col gap-4 sm:flex-row">
+            {steps.map((step, index) => {
+              const isActive = activeStep === step.id
+              const isComplete = activeStep > step.id
+              return (
+                <li key={step.id} className="flex flex-1 items-center gap-3">
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-semibold ${
+                      isActive
+                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-200'
+                        : isComplete
+                        ? 'bg-success-100 text-success-700'
+                        : 'bg-white text-slate-400 border border-slate-200'
+                    }`}
+                  >
+                    {isComplete ? <Sparkles className="h-4 w-4" /> : index + 1}
+                  </div>
+                  <div>
+                    <p className={`text-sm font-semibold ${isActive ? 'text-slate-900' : 'text-slate-500'}`}>{step.title}</p>
+                    <p className="text-xs text-slate-400">{step.description}</p>
+                  </div>
+                </li>
+              )
+            })}
+          </ol>
+        </div>
 
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <p className="text-sm font-semibold text-white">Need inspiration?</p>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  {quickCategories.map((category) => (
+        <form onSubmit={handleSubmit(onFormSubmit)} className="max-h-[70vh] overflow-y-auto px-6 py-6 sm:px-8">
+          {activeStep === 1 && (
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="space-y-6">
+                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 p-6 text-center">
+                  <input id="image-upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                  <div className="flex flex-col items-center justify-center gap-4">
+                    <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-inner">
+                      {imagePreview ? (
+                        <img src={imagePreview} alt="Preview" className="h-24 w-24 rounded-2xl object-cover" />
+                      ) : product?.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="h-24 w-24 rounded-2xl object-cover" />
+                      ) : (
+                        <Camera className="h-10 w-10 text-slate-300" />
+                      )}
+                    </div>
                     <button
                       type="button"
-                      key={category}
-                      onClick={() => {
-                        const input = document.getElementById('name') as HTMLInputElement | null;
-                        if (input && !input.value.toLowerCase().includes(category.toLowerCase())) {
-                          input.value = `${input.value ? `${input.value} ` : ''}${category}`;
-                          input.dispatchEvent(new Event('input', { bubbles: true }));
-                        }
-                      }}
-                      className="rounded-2xl border border-white/20 bg-white/10 px-4 py-2 text-sm text-slate-100 transition hover:-translate-y-0.5 hover:border-white/40"
+                      onClick={() => document.getElementById('image-upload')?.click()}
+                      className="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200 transition hover:bg-slate-50"
                     >
-                      <Tag className="mr-2 h-4 w-4" /> {category}
+                      <Upload className="h-4 w-4" /> Upload gallery
                     </button>
-                  ))}
+                    <p className="text-xs text-slate-400">PNG oder JPG bis 10MB</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-600">Product name *</label>
+                  <input
+                    type="text"
+                    {...register('name')}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    placeholder="e.g. Air Jordan 1 Retro"
+                  />
+                  {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-600">Category *</label>
+                    <select
+                      {...register('category')}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    >
+                      <option value="">Select category</option>
+                      {categories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>}
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-600">Condition *</label>
+                    <select
+                      {...register('condition')}
+                      className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    >
+                      {conditions.map((condition) => (
+                        <option key={condition.value} value={condition.value}>
+                          {condition.label}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.condition && <p className="mt-1 text-sm text-red-600">{errors.condition.message}</p>}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-600">Description</label>
+                  <textarea
+                    {...register('description')}
+                    rows={4}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    placeholder="Share size, accessories or story that makes it sell faster"
+                  />
+                  {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>}
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-600">Tags</label>
+                  <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                    <Tag className="h-4 w-4 text-slate-400" />
+                    <input
+                      type="text"
+                      {...register('tags')}
+                      className="w-full border-none text-sm text-slate-900 focus:outline-none"
+                      placeholder="e.g. limited, boxed, vintage"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400">Separate tags with commas</p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5">
+                  <div className="flex items-center gap-3">
+                    <Package className="h-5 w-5 text-primary-500" />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-800">Smart product profile</p>
+                      <p className="text-xs text-slate-500">Keep dimensions, accessories and authenticity notes here.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-600">Notes for your team</label>
+                  <textarea
+                    {...register('notes')}
+                    rows={5}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                    placeholder="Pickup reminder, buyer preferences, shipping information..."
+                  />
+                  {errors.notes && <p className="mt-1 text-sm text-red-600">{errors.notes.message}</p>}
                 </div>
               </div>
             </div>
           )}
 
           {activeStep === 2 && (
-            <div className="space-y-6">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-3xl border border-dashed border-white/20 bg-white/5 p-6 text-center">
-                  <input id="image-upload" type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                  <div className="flex flex-col items-center justify-center gap-4">
-                    <div className="flex h-36 w-36 items-center justify-center rounded-3xl bg-white/10">
-                      {imagePreview ? (
-                        <img src={imagePreview} alt="Preview" className="h-36 w-36 rounded-3xl object-cover" />
-                      ) : product?.image_url ? (
-                        <img src={product.image_url} alt={product.name} className="h-36 w-36 rounded-3xl object-cover" />
-                      ) : (
-                        <ImageIcon className="h-8 w-8 text-white/60" />
-                      )}
-                    </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="space-y-6">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <h3 className="mb-4 flex items-center text-lg font-semibold text-slate-900">
+                    <DollarSign className="mr-2 h-5 w-5 text-primary-500" /> Pricing (optional)
+                  </h3>
+                  <div className="space-y-4">
                     <div>
-                      <p className="font-semibold text-white">Drop in a quick photo (optional)</p>
-                      <p className="text-sm text-slate-200">Photos can be added later, but they help you identify the item quickly.</p>
+                      <label className="mb-2 block text-sm font-medium text-slate-600">Expected sale price</label>
+                      <div className="flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-3">
+                        <span className="text-sm text-slate-400">$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          {...register('listing_price', { valueAsNumber: true })}
+                          className="w-full border-none text-sm text-slate-900 focus:outline-none"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {errors.listing_price && <p className="mt-1 text-sm text-red-600">{errors.listing_price.message}</p>}
+                      <p className="mt-1 text-xs text-slate-400">We’ll keep this flexible until you close the deal.</p>
                     </div>
-                    <div className="flex flex-wrap gap-3">
-                      <label
-                        htmlFor="image-upload"
-                        className="cursor-pointer rounded-2xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:border-white/40"
-                      >
-                        <Upload className="mr-2 inline h-4 w-4" /> Upload
-                      </label>
-                      <button
-                        type="button"
-                        className="rounded-2xl border border-white/0 bg-white/10 px-4 py-2 text-sm text-slate-100"
-                        onClick={() => setImagePreview(null)}
-                      >
-                        Remove
-                      </button>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-600">Purchase price</label>
+                      <div className="flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-3">
+                        <span className="text-sm text-slate-400">$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          {...register('purchase_price', { valueAsNumber: true })}
+                          className="w-full border-none text-sm text-slate-900 focus:outline-none"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {errors.purchase_price && <p className="mt-1 text-sm text-red-600">{errors.purchase_price.message}</p>}
                     </div>
+
+                    {profit !== null && (
+                      <div className="rounded-2xl border border-success-100 bg-success-50/80 p-4">
+                        <p className="text-sm font-semibold text-success-700">Projected profit</p>
+                        <p className="text-2xl font-bold text-success-600">${profit.toFixed(2)}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
-                <div className="space-y-6">
-                  <div>
-                    <label className="text-sm font-semibold text-white">Category (optional)</label>
-                    <input
-                      type="text"
-                      placeholder="Electronics, Fashion, Collectibles..."
-                      {...register('category')}
-                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
-                    />
-                  </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-600">Platform *</label>
+                  <select
+                    {...register('platform')}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                  >
+                    <option value="">Select platform</option>
+                    {platforms.map((platform) => (
+                      <option key={platform} value={platform}>
+                        {platform}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.platform && <p className="mt-1 text-sm text-red-600">{errors.platform.message}</p>}
+                </div>
+              </div>
 
-                  <div>
-                    <label className="text-sm font-semibold text-white">Condition</label>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                      {conditionOptions.map((option) => (
-                        <label
-                          key={option.value}
-                          className="flex cursor-pointer items-center gap-3 rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-slate-100 transition hover:border-white/40"
-                        >
-                          <input
-                            type="radio"
-                            value={option.value}
-                            {...register('condition')}
-                            className="h-4 w-4 border-white/30 bg-transparent text-sky-400 focus:ring-sky-300"
-                          />
-                          {option.label}
-                        </label>
-                      ))}
+              <div className="space-y-6">
+                <div className="rounded-2xl border border-slate-200 bg-white p-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-600">Status *</label>
+                  <select
+                    {...register('status')}
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100"
+                  >
+                    {statuses.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.status && <p className="mt-1 text-sm text-red-600">{errors.status.message}</p>}
+                </div>
+
+                <div className="rounded-2xl border border-primary-100 bg-primary-50/60 p-5">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-primary-500" />
+                    <div>
+                      <p className="text-sm font-semibold text-primary-700">Need to mark it sold?</p>
+                      <p className="text-xs text-primary-600">Use the new "Mark as sold" action directly from the product list.</p>
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-semibold text-white">Tags (optional)</label>
-                    <input
-                      type="text"
-                      placeholder="Separate with commas"
-                      {...register('tags')}
-                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
-                    />
                   </div>
                 </div>
               </div>
             </div>
           )}
 
-          {activeStep === 3 && (
-            <div className="space-y-6">
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div>
-                    <label className="text-sm font-semibold text-white">Platform (optional)</label>
-                    <input
-                      type="text"
-                      placeholder="eBay, Marketplace, Shopify..."
-                      {...register('platform')}
-                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-white">Status</label>
-                    <select
-                      {...register('status')}
-                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white focus:border-sky-300 focus:outline-none"
-                    >
-                      {statusOptions.map((option) => (
-                        <option key={option.value} value={option.value} className="bg-slate-800 text-white">
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-white">Listing price (optional)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      {...register('listing_price')}
-                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
-                    />
-                    {errors.listing_price && <p className="mt-2 text-sm text-rose-300">{errors.listing_price.message}</p>}
-                  </div>
-                  <div>
-                    <label className="text-sm font-semibold text-white">Cost (optional)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="0.00"
-                      {...register('purchase_price')}
-                      className="mt-2 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
-                    />
-                    {errors.purchase_price && <p className="mt-2 text-sm text-rose-300">{errors.purchase_price.message}</p>}
-                  </div>
-                </div>
-
-                {projectedProfit !== null && (
-                  <div className="mt-4 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-100">
-                    Potential profit: <span className="font-semibold">${projectedProfit.toFixed(2)}</span>{' '}
-                    {watchedStatus === 'sold' ? '(based on sale details)' : '(if sold at this price)'}
-                  </div>
-                )}
-              </div>
-
-              <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-                <label className="text-sm font-semibold text-white">Notes (optional)</label>
-                <textarea
-                  rows={4}
-                  placeholder="Add quick reminders, buyer context, or custom steps"
-                  {...register('notes')}
-                  className="mt-2 w-full rounded-3xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-sky-300 focus:outline-none"
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="flex flex-col gap-4 border-t border-white/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm text-slate-300">
-              {isLastStep ? 'Ready to save. You can always edit later.' : `Next up: ${steps[activeStep]?.title ?? ''}`}
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
+            >
+              Cancel
+            </button>
+            <div className="flex flex-col gap-3 sm:flex-row">
               {activeStep > 1 && (
                 <button
                   type="button"
-                  onClick={() => goToStep('back')}
-                  className="flex items-center justify-center rounded-2xl border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:border-white/40"
+                  onClick={handlePrevious}
+                  className="rounded-2xl px-6 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
                 >
-                  <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                  Back
                 </button>
               )}
-
-              {!isLastStep && (
+              {activeStep < steps.length ? (
                 <button
                   type="button"
-                  onClick={handleSkip}
-                  className="rounded-2xl border border-white/0 bg-white/5 px-5 py-3 text-sm font-semibold text-slate-100 hover:bg-white/10"
+                  onClick={handleNext}
+                  className="rounded-2xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                 >
-                  Skip step
-                </button>
-              )}
-
-              {isLastStep ? (
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="flex items-center justify-center rounded-2xl bg-gradient-to-r from-sky-400 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-glow transition hover:translate-y-0.5 disabled:opacity-70"
-                >
-                  {isSubmitting ? 'Saving...' : product?.id ? 'Save changes' : 'Save product'}
+                  Continue
                 </button>
               ) : (
                 <button
-                  type="button"
-                  onClick={() => goToStep('next')}
-                  className="flex items-center justify-center rounded-2xl bg-white/15 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 backdrop-blur hover:bg-white/20"
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-primary-500 to-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:from-primary-600 hover:to-primary-700 disabled:opacity-60"
                 >
-                  Continue
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-b-transparent"></span>
+                      Saving...
+                    </div>
+                  ) : (
+                    'Save product'
+                  )}
                 </button>
               )}
             </div>
@@ -458,5 +458,5 @@ export default function ProductForm({ product, onSubmit, onCancel }: ProductForm
         </form>
       </div>
     </div>
-  );
+  )
 }
