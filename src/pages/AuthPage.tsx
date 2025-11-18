@@ -148,7 +148,7 @@ export default function AuthPage() {
             </div>
           </Link>
           <Link to={ROUTES.demo} className="hidden items-center gap-2 rounded-full border border-white/10 px-5 py-2 text-sm font-medium text-white/80 transition hover:border-white/30 hover:text-white sm:flex">
-            Watch product tour
+            Open live demo
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -172,18 +172,20 @@ export default function AuthPage() {
             <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-soft">
               <div className="flex items-center gap-3 text-sm font-medium text-white/60">
                 <ShieldCheck className="h-5 w-5 text-success-300" />
-                Secure Access
+                Supabase Auth Layer
               </div>
-              <p className="mt-3 text-3xl font-semibold">2,300+</p>
-              <p className="text-sm text-white/60">Resellers verified via Supabase magic links</p>
+              <p className="mt-3 text-base text-white/70">
+                E-Mail-Login, Magic Links und Verifizierung laufen komplett über Supabase – kein zusätzlicher Code nötig.
+              </p>
             </div>
             <div className="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-soft">
               <div className="flex items-center gap-3 text-sm font-medium text-white/60">
                 <Star className="h-5 w-5 text-primary-200" />
-                Customer Trust
+                Discord Login ready
               </div>
-              <p className="mt-3 text-3xl font-semibold">4.9 / 5</p>
-              <p className="text-sm text-white/60">Average rating across indie brands</p>
+              <p className="mt-3 text-base text-white/70">
+                Crew-Mitglieder melden sich per Discord OAuth an und landen sofort in ihrem Workspace.
+              </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-6 rounded-3xl border border-white/5 bg-white/5/50 p-5">

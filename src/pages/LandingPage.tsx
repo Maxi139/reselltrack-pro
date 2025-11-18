@@ -45,24 +45,27 @@ const features = [
   },
 ]
 
-const highlights = [
-  { label: 'Avg. workflow saved per drop', value: '14 hrs' },
-  { label: 'Teams migrating from spreadsheets', value: '310+' },
-  { label: 'Automated Discord logins per month', value: '9,800' },
+const capabilityHighlights = [
+  { title: 'Supabase Auth', description: 'Email-Login, Discord OAuth und Verifizierung sind einsatzbereit.' },
+  { title: 'Inventory & CRM', description: 'Produkte, Konsignments und Kontakte laufen in einer Pipeline.' },
+  { title: 'Meetings & Follow-ups', description: 'Sourcing-Calls planen, Aufgaben festhalten und Teams onboarden.' },
 ]
 
-const testimonials = [
+const trustSignals = [
   {
-    name: 'Sarah Voigt',
-    role: 'Founder • Velvet Archive',
-    quote:
-      'Wir haben ResellTrack Pro eingeführt, um unsere High-End-Consignments zu steuern. Seitdem laufen Sales, Service und Finance wie eine einzige Oberfläche – inklusive Discord Login für unser Team.',
+    title: 'Supabase Security Layer',
+    description: 'Magic Links, Passwort-Login und Session Refresh direkt integriert – keine Zusatzarbeit.',
+    icon: ShieldCheck,
   },
   {
-    name: 'Dion Smith',
-    role: 'Ops Lead • Prime Sneaker Vault',
-    quote:
-      'Vom Wareneingang bis zum Abverkauf ist alles transparent. Die Supabase-Authentifizierung gibt uns Enterprise-Sicherheit ohne Enterprise-Aufwand.',
+    title: 'Discord Single Sign-On',
+    description: 'Crew-Mitglieder authentifizieren sich mit Discord und landen sofort im passenden Workspace.',
+    icon: MessageCircle,
+  },
+  {
+    title: 'Inventory + Meeting Hub',
+    description: 'Produkte, Meetings und Aufgaben nutzen dieselben Status-Boards und Filter.',
+    icon: CalendarCheck2,
   },
 ]
 
@@ -181,14 +184,14 @@ export default function LandingPage() {
                   to={ROUTES.demo}
                   className="inline-flex items-center gap-3 rounded-2xl border border-white/10 px-7 py-4 text-lg font-semibold text-white/80 transition hover:border-white/40 hover:text-white"
                 >
-                  Watch 3‑min demo
+                  Explore live demo
                 </Link>
               </div>
-              <div className="grid gap-6 text-sm text-white/70 sm:grid-cols-3">
-                {highlights.map((highlight) => (
-                  <div key={highlight.label} className="rounded-3xl border border-white/5 bg-white/5 p-4">
-                    <p className="text-3xl font-semibold text-white">{highlight.value}</p>
-                    <p>{highlight.label}</p>
+              <div className="grid gap-6 text-sm text-white/80 sm:grid-cols-3">
+                {capabilityHighlights.map((item) => (
+                  <div key={item.title} className="rounded-3xl border border-white/5 bg-white/5/60 p-4">
+                    <p className="text-lg font-semibold text-white">{item.title}</p>
+                    <p className="mt-1 text-sm text-white/70">{item.description}</p>
                   </div>
                 ))}
               </div>
@@ -315,15 +318,20 @@ export default function LandingPage() {
         <section id="trust" className="bg-slate-900/60 py-20">
           <div className="mx-auto max-w-6xl px-6">
             <div className="text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/50">Customer love</p>
-              <h2 className="mt-4 text-3xl font-semibold">Brands who scale with ResellTrack Pro</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/50">Operational coverage</p>
+              <h2 className="mt-4 text-3xl font-semibold">Nur Features, die heute live sind</h2>
+              <p className="mt-3 text-white/70">Von Auth über Inventar bis Meetings – alles basiert auf Supabase und Discord Login.</p>
             </div>
-            <div className="mt-12 grid gap-6 md:grid-cols-2">
-              {testimonials.map((testimonial) => (
-                <div key={testimonial.name} className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/80 shadow-soft">
-                  <p className="text-lg">“{testimonial.quote}”</p>
-                  <p className="mt-4 text-sm font-semibold text-white">{testimonial.name}</p>
-                  <p className="text-xs text-white/60">{testimonial.role}</p>
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {trustSignals.map((signal) => (
+                <div key={signal.title} className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/80 shadow-soft">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                      <signal.icon className="h-6 w-6 text-primary-200" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white">{signal.title}</h3>
+                  </div>
+                  <p className="mt-4 text-sm text-white/70">{signal.description}</p>
                 </div>
               ))}
             </div>
