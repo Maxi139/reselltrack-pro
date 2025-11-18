@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const appUrl = import.meta.env.VITE_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
 
 // Check if we're using placeholder values (development mode)
 const isDevelopmentMode = supabaseUrl === 'https://placeholder.supabase.co' || 
@@ -94,6 +95,7 @@ export const authHelpers = {
       email,
       password,
       options: {
+        emailRedirectTo: `${appUrl}/auth/callback`,
         data: {
           full_name: fullName,
           business_name: businessName,
@@ -117,6 +119,18 @@ export const authHelpers = {
     return { data, error }
   },
 
+  async signInWithProvider(provider: 'discord') {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${appUrl}/auth/callback`,
+        skipBrowserRedirect: true,
+        scopes: provider === 'discord' ? 'identify email guilds email' : undefined,
+      },
+    })
+    return { data, error }
+  },
+
   async signOut() {
     const { error } = await supabase.auth.signOut()
     return { error }
@@ -125,6 +139,17 @@ export const authHelpers = {
   async resetPassword(email: string) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${import.meta.env.VITE_APP_URL}/reset-password`,
+    })
+    return { data, error }
+  },
+
+  async resendVerification(email: string) {
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${appUrl}/auth/callback`,
+      },
     })
     return { data, error }
   },

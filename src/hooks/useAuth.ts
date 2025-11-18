@@ -10,13 +10,15 @@ export function useAuth() {
     subscriptionTier, 
     trialEndsAt,
     signIn, 
-    signUp, 
-    signOut, 
-    resetPassword, 
-    updatePassword, 
+    signUp,
+    signInWithProvider,
+    signOut,
+    resetPassword,
+    updatePassword,
     updateProfile,
+    resendVerification,
     initializeAuth,
-    setDemoMode 
+    setDemoMode
   } = useAuthStore()
 
   // Initialize auth on mount
@@ -60,10 +62,12 @@ export function useAuth() {
     canAccessProFeatures,
     signIn,
     signUp,
+    signInWithProvider,
     signOut,
     resetPassword,
     updatePassword,
     updateProfile,
+    resendVerification,
     setDemoMode,
   }
 }

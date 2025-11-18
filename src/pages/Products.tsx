@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Eye, DollarSign, Package, Tag, Calendar, CheckCircle2, Sparkles } from 'lucide-react';
 import { dbHelpers } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
@@ -136,6 +136,14 @@ export default function Products() {
   const closeMarkSoldFlow = () => {
     if (markSoldMutation.isPending) return;
     setMarkSoldProduct(null);
+  };
+
+  const startProductFlow = () => {
+    if (isDemoMode) {
+      handleDemoAction('Opening product flow');
+      return;
+    }
+    navigate(ROUTES.dashboardAnalytics);
   };
 
   const metrics = useMemo(() => {
@@ -277,7 +285,7 @@ export default function Products() {
           ))}
         </div>
 
-        <div className="mt-8">
+        <section className="mt-8">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="flex flex-wrap gap-2 xl:gap-3">
               {quickStatusFilters.map((filter) => (

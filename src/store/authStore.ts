@@ -13,11 +13,13 @@ export interface AuthState {
 export interface AuthActions {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, fullName: string, businessName?: string) => Promise<void>
+  signInWithProvider: (provider: 'discord') => Promise<void>
   signOut: () => Promise<void>
   resetPassword: (email: string) => Promise<void>
   updatePassword: (newPassword: string) => Promise<void>
   updateProfile: (updates: any) => Promise<void>
   checkSubscription: () => Promise<void>
+  resendVerification: (email: string) => Promise<void>
   setDemoMode: (enabled: boolean) => void
   initializeAuth: () => Promise<void>
 }
@@ -52,9 +54,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         await get().setDemoMode(true);
       } else {
         // Check for regular user
-        const result = await authHelpers.getUser()
-        const user = result?.data?.user || null
-        
+        const user = await authHelpers.getUser()
+
         if (user) {
           await get().checkSubscription()
           set({ user })
@@ -89,15 +90,14 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   async signUp(email: string, password: string, fullName: string, businessName?: string) {
     set({ isLoading: true })
-    
+
     try {
       const { data, error } = await authHelpers.signUp(email, password, fullName, businessName)
-      
+
       if (error) throw error
-      
+      // Supabase requires email verification, so we let the user confirm via email
       if (data.user) {
-        set({ 
-          user: data.user, 
+        set({
           isDemo: false,
           subscriptionTier: 'trial',
           trialEndsAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
@@ -108,6 +108,22 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       throw error
     } finally {
       set({ isLoading: false })
+    }
+  },
+
+  async signInWithProvider(provider: 'discord') {
+    set({ isLoading: true })
+
+    try {
+      const { data, error } = await authHelpers.signInWithProvider(provider)
+      if (error) throw error
+      if (data?.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error('OAuth sign in error:', error)
+      set({ isLoading: false })
+      throw error
     }
   },
 
@@ -192,6 +208,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     } catch (error) {
       console.error('Subscription check error:', error)
     }
+  },
+
+  async resendVerification(email: string) {
+    const { error } = await authHelpers.resendVerification(email)
+    if (error) throw error
   },
 
   async setDemoMode(enabled: boolean) {

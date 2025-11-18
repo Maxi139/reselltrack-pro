@@ -67,11 +67,6 @@ const stepFieldMap: Record<number, (keyof ProductFormData)[]> = {
   2: ['platform', 'status', 'listing_price', 'purchase_price', 'notes']
 }
 
-const stepFieldMap: Record<number, (keyof ProductFormData)[]> = {
-  1: ['name'],
-  2: [],
-  3: []
-};
 
 export default function ProductForm({ product, onSubmit, onCancel }: ProductFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)

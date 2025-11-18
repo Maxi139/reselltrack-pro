@@ -1,515 +1,360 @@
+import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { ArrowRight, Smartphone, TrendingUp, Calendar, Shield, Star, Check, Menu, X, DollarSign, Package } from 'lucide-react'
-import { useState } from 'react'
+import {
+  ArrowRight,
+  BarChart3,
+  CalendarCheck2,
+  CheckCircle2,
+  Layers3,
+  MessageCircle,
+  ShieldCheck,
+  Sparkles,
+  Users,
+  Zap,
+} from 'lucide-react'
 import { ROUTES } from '../routes'
 
+const features = [
+  {
+    title: 'Realtime Inventory Cloud',
+    description:
+      'Track every SKU, purchase order and consignment in a unified pipeline with smart alerts, pricing suggestions and AI powered duplicate detection.',
+    icon: Layers3,
+    badge: 'Inventory',
+  },
+  {
+    title: 'Client CRM & Discord Inbox',
+    description:
+      'Sync buyer conversations across Discord, email and SMS. Turn chats into invoices and nurture VIP clients with automations.',
+    icon: MessageCircle,
+    badge: 'Relationships',
+  },
+  {
+    title: 'Cashflow & Tax Analytics',
+    description:
+      'Live profit dashboards, payout forecasting and export-ready ledgers keep finance teams confident before every drop.',
+    icon: BarChart3,
+    badge: 'Finance',
+  },
+  {
+    title: 'Meetings & Concierge',
+    description:
+      'Schedule sourcing calls, auto-sync meeting notes and surface follow-ups powered by Supabase functions.',
+    icon: CalendarCheck2,
+    badge: 'Operations',
+  },
+]
+
+const capabilityHighlights = [
+  { title: 'Supabase Auth', description: 'Email-Login, Discord OAuth und Verifizierung sind einsatzbereit.' },
+  { title: 'Inventory & CRM', description: 'Produkte, Konsignments und Kontakte laufen in einer Pipeline.' },
+  { title: 'Meetings & Follow-ups', description: 'Sourcing-Calls planen, Aufgaben festhalten und Teams onboarden.' },
+]
+
+const trustSignals = [
+  {
+    title: 'Supabase Security Layer',
+    description: 'Magic Links, Passwort-Login und Session Refresh direkt integriert – keine Zusatzarbeit.',
+    icon: ShieldCheck,
+  },
+  {
+    title: 'Discord Single Sign-On',
+    description: 'Crew-Mitglieder authentifizieren sich mit Discord und landen sofort im passenden Workspace.',
+    icon: MessageCircle,
+  },
+  {
+    title: 'Inventory + Meeting Hub',
+    description: 'Produkte, Meetings und Aufgaben nutzen dieselben Status-Boards und Filter.',
+    icon: CalendarCheck2,
+  },
+]
+
 export default function LandingPage() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const navItems = useMemo(
+    () => [
+      { label: 'Flow', href: '#flow' },
+      { label: 'Features', href: '#features' },
+      { label: 'Pricing', href: '#pricing' },
+      { label: 'Trust', href: '#trust' },
+    ],
+    [],
+  )
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white/90 backdrop-blur border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">RT</span>
-              </div>
-              <h1 className="text-xl font-bold text-gray-900">ResellTrack Pro</h1>
+    <div className="min-h-screen bg-slate-950 text-white">
+      <div className="pointer-events-none fixed inset-0 z-0 opacity-70">
+        <div className="absolute left-0 top-0 h-80 w-80 -translate-x-1/2 rounded-full bg-primary-500/40 blur-[120px]" />
+        <div className="absolute right-0 top-10 h-96 w-96 translate-x-1/3 rounded-full bg-success-400/30 blur-[140px]" />
+      </div>
+
+      <header className="relative z-10 border-b border-white/10 bg-slate-950/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+          <Link to={ROUTES.landing} className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 to-primary-300 text-xl font-bold shadow-glow">
+              RT
             </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-primary-500 transition-colors font-medium">Features</a>
-              <a href="#pricing" className="text-gray-600 hover:text-primary-500 transition-colors font-medium">Pricing</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-primary-500 transition-colors font-medium">Testimonials</a>
-            </nav>
-
-            {/* Desktop Auth Buttons */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Link to={ROUTES.auth} className="text-gray-600 hover:text-primary-500 transition-colors font-medium">
-                Sign In
-              </Link>
-              <Link to={ROUTES.auth} className="btn-primary">
-                Start Free Trial
-              </Link>
+            <div>
+              <p className="text-base font-semibold tracking-tight">ResellTrack Pro</p>
+              <p className="text-xs text-white/60">Inventory • CRM • Analytics</p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-8 md:flex">
-            <a href="#flow" className="text-sm text-slate-200 transition hover:text-white">
-              Flow
-            </a>
-            <a href="#features" className="text-sm text-slate-200 transition hover:text-white">
-              Features
-            </a>
-            <a href="#pricing" className="text-sm text-slate-200 transition hover:text-white">
-              Preise
-            </a>
+          <nav className="hidden items-center gap-8 text-sm font-medium text-white/70 lg:flex">
+            {navItems.map((item) => (
+              <a key={item.label} href={item.href} className="transition hover:text-white">
+                {item.label}
+              </a>
+            ))}
           </nav>
 
-          <div className="hidden items-center gap-3 md:flex">
-            <Link to={ROUTES.auth} className="text-sm text-slate-200 transition hover:text-white">
-              Login
+          <div className="hidden items-center gap-3 lg:flex">
+            <Link to={ROUTES.auth} className="text-sm font-semibold text-white/70 transition hover:text-white">
+              Sign in
             </Link>
             <Link
               to={ROUTES.auth}
-              className="inline-flex items-center rounded-2xl bg-gradient-to-r from-emerald-400 to-sky-400 px-5 py-2 text-sm font-semibold text-slate-900"
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-success-500 to-primary-400 px-5 py-2 text-sm font-semibold text-white shadow-glow"
             >
-              Jetzt starten
+              Start free trial
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-200"
-            >
-              <div className="px-2 pt-2 pb-3 space-y-1">
-                <a href="#features" className="block px-3 py-2 text-gray-600 hover:text-primary-500 font-medium">Features</a>
-                <a href="#pricing" className="block px-3 py-2 text-gray-600 hover:text-primary-500 font-medium">Pricing</a>
-                <a href="#testimonials" className="block px-3 py-2 text-gray-600 hover:text-primary-500 font-medium">Testimonials</a>
-                <div className="border-t border-gray-200 pt-2">
-                  <Link to={ROUTES.auth} className="block px-3 py-2 text-gray-600 hover:text-primary-500 font-medium">Sign In</Link>
-                  <Link to={ROUTES.auth} className="block w-full text-left px-3 py-2 btn-primary mt-2">Start Free Trial</Link>
-                </div>
-              </div>
-            </motion.div>
-          )}
+          <button
+            className="inline-flex items-center justify-center rounded-xl border border-white/10 p-2 text-white lg:hidden"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+          >
+            <span className="sr-only">Toggle menu</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {isMenuOpen ? (
+                <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              ) : (
+                <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              )}
+            </svg>
+          </button>
         </div>
-
-      {/* Hero Section */}
-      <section className="bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left Column - Content */}
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Turn Your Side Hustle Into a
-                  <span className="text-primary-500"> Profitable Business</span>
-                </h1>
-                <p className="text-lg sm:text-xl text-gray-600 leading-relaxed">
-                  The all-in-one platform for resellers. Track inventory, manage customers, and grow your business with powerful analytics and automation.
-                </p>
-              </div>
+        {isMenuOpen && (
+          <div className="border-t border-white/10 bg-slate-900/80 px-6 py-4 lg:hidden">
+            <nav className="space-y-4 text-base text-white/80">
+              {navItems.map((item) => (
+                <a key={item.label} href={item.href} className="block" onClick={() => setIsMenuOpen(false)}>
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+            <div className="mt-4 flex flex-col gap-3">
+              <Link to={ROUTES.auth} className="rounded-2xl border border-white/15 px-5 py-3 text-center text-sm font-semibold text-white/80">
+                Sign in
+              </Link>
+              <Link to={ROUTES.auth} className="rounded-2xl bg-gradient-to-r from-success-500 to-primary-400 px-5 py-3 text-center text-sm font-semibold text-white">
+                Start free trial
+              </Link>
             </div>
           </div>
         )}
       </header>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Link to={ROUTES.auth} className="btn-primary text-lg px-8 py-4">
-                  Start Free Trial
-                  <ArrowRight className="ml-2 w-5 h-5" />
+      <main className="relative z-10">
+        <section className="border-b border-white/5 bg-gradient-to-b from-slate-950 via-slate-950 to-slate-900/80">
+          <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-[1fr_0.9fr] lg:py-24">
+            <div className="space-y-10">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/70">
+                <Sparkles className="h-4 w-4 text-primary-300" />
+                Built on Supabase • Discord login ready
+              </div>
+              <div className="space-y-6">
+                <h1 className="text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">
+                  Operate your resale business like a modern tech brand
+                </h1>
+                <p className="text-lg text-white/70">
+                  ResellTrack Pro vereint CRM, Produkt-Flow, Meetings und Reporting in einem einzigen Command Center – mit gesichertem Supabase Login, Discord SSO und komplett neuem Interface.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  to={ROUTES.auth}
+                  className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary-500 to-primary-300 px-7 py-4 text-lg font-semibold text-white shadow-glow transition hover:brightness-110"
+                >
+                  Launch cockpit
+                  <ArrowRight className="h-5 w-5" />
                 </Link>
-                <Link to={ROUTES.demo} className="btn-secondary text-lg px-8 py-4 text-center">
-                  Watch Demo
+                <Link
+                  to={ROUTES.demo}
+                  className="inline-flex items-center gap-3 rounded-2xl border border-white/10 px-7 py-4 text-lg font-semibold text-white/80 transition hover:border-white/40 hover:text-white"
+                >
+                  Explore live demo
                 </Link>
               </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-4 sm:pt-8">
-                <div className="text-center">
-                  <div className="flex justify-center mb-2">
-                    <DollarSign className="w-8 h-8 text-success-500" />
+              <div className="grid gap-6 text-sm text-white/80 sm:grid-cols-3">
+                {capabilityHighlights.map((item) => (
+                  <div key={item.title} className="rounded-3xl border border-white/5 bg-white/5/60 p-4">
+                    <p className="text-lg font-semibold text-white">{item.title}</p>
+                    <p className="mt-1 text-sm text-white/70">{item.description}</p>
                   </div>
-                  <div className="text-2xl font-bold text-gray-900">$15,750</div>
-                  <div className="text-sm text-gray-600">Monthly Revenue</div>
-                </div>
-                <div>
-                  <p className="text-3xl font-semibold text-white">120+</p>
-                  <p>Produkte im Flow</p>
-                </div>
-                <div>
-                  <p className="text-3xl font-semibold text-white">24/7</p>
-                  <p>Support & Guides</p>
-                </div>
+                ))}
               </div>
             </div>
-
-            {/* Right Column - Image Placeholder */}
-            <div className="relative">
-              <div className="bg-gradient-primary rounded-3xl p-8 lg:p-12 text-white shadow-xl">
-                <div className="space-y-6">
-                  <div className="bg-white bg-opacity-20 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">iPhone 14 Pro</span>
-                      <span className="text-green-300">+$250</span>
-                    </div>
-                    <div className="text-sm opacity-80">Sold for $1,199 • Profit Margin: 21%</div>
+            <div className="rounded-[30px] border border-white/10 bg-white/5 p-6 shadow-strong backdrop-blur-xl">
+              <div className="space-y-4 rounded-2xl bg-slate-950/60 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-white/60">Realtime Flow</p>
+                    <p className="text-2xl font-semibold">Drop #1324</p>
                   </div>
-                  <div className="bg-white bg-opacity-20 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">MacBook Air M2</span>
-                      <span className="text-green-300">+$180</span>
-                    </div>
-                    <div className="text-sm opacity-80">Sold for $1,349 • Profit Margin: 13%</div>
-                  </div>
-                  <div className="bg-white bg-opacity-20 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-medium">AirPods Pro</span>
-                      <span className="text-green-300">+$95</span>
+                  <ShieldCheck className="h-6 w-6 text-success-400" />
+                </div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map((item) => (
+                    <div key={item} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <p className="font-semibold">{item === 1 ? 'iPhone 16 Pro' : item === 2 ? 'Rolex GMT' : 'Travis Scott AF1'}</p>
+                        <p className="text-success-300">{item === 2 ? '+$1,040' : '+$320'}</p>
+                      </div>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-white/50">
+                        <CheckCircle2 className="h-4 w-4 text-success-400" />
+                        Cleared · Supabase verified · Discord sync
+                      </div>
                     </div>
                   ))}
                 </div>
-                <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200">
-                  <p className="font-semibold text-white">Demo-Modus aktiv</p>
-                  <p className="text-xs">Keine Sorge: In Demo-Accounts bleiben alle Aktionen geschützt.</p>
+                <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-primary-500/20 to-success-500/20 p-4 text-sm text-white/80">
+                  <p className="font-semibold">Automated insights</p>
+                  <p className="mt-1">Gross margin +27% vs last drop • 8 follow-ups scheduled via Discord.</p>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-16 sm:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Everything You Need to Scale Your Reselling Business
-            </h2>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-              From inventory tracking to customer management, we've got you covered with powerful tools designed specifically for resellers.
-            </p>
-          </div>
         </section>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Feature 1 */}
-            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
-              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
-                <Smartphone className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Smart Inventory Tracking</h3>
-              <p className="text-gray-600">
-                Never lose track of your products again. Automatic profit calculations, status updates, and detailed product information.
-              </p>
+        <section id="flow" className="border-b border-white/5 bg-slate-950/80 py-16">
+          <div className="mx-auto grid max-w-6xl gap-8 px-6 lg:grid-cols-3">
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <h3 className="text-2xl font-semibold">Drop-ready flow</h3>
+              <p className="mt-2 text-white/70">Konfigurierte Status-Boards für Einkauf, QC, Live und After-Sale.</p>
+              <ul className="mt-6 space-y-3 text-sm text-white/70">
+                <li className="flex items-center gap-2"><Zap className="h-4 w-4 text-primary-300" />Smart automations & alerts</li>
+                <li className="flex items-center gap-2"><Users className="h-4 w-4 text-primary-300" />Team-based approvals</li>
+                <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary-300" />Supabase session security</li>
+              </ul>
             </div>
-
-            {/* Feature 2 */}
-            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
-              <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mb-4">
-                <TrendingUp className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Profit Analytics</h3>
-              <p className="text-gray-600">
-                Track your profits with detailed analytics. See which products are making you the most money and optimize your strategy.
-              </p>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <h3 className="text-2xl font-semibold">Discord-ready login</h3>
+              <p className="mt-2 text-white/70">Enable creators, runners and client advisors to connect via Discord OAuth in seconds.</p>
+              <ul className="mt-6 space-y-3 text-sm text-white/70">
+                <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success-400" />Verified profiles & audit logs</li>
+                <li className="flex items-center gap-2"><MessageCircle className="h-4 w-4 text-success-400" />Chat handoffs into CRM</li>
+                <li className="flex items-center gap-2"><Layers3 className="h-4 w-4 text-success-400" />Role-based permissions</li>
+              </ul>
             </div>
-
-            {/* Feature 3 */}
-            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
-              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
-                <Calendar className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Automated Reminders</h3>
-              <p className="text-gray-600">
-                Never miss a follow-up or deadline. Automated reminders for customer communication and important tasks.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
-              <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Secure & Reliable</h3>
-              <p className="text-gray-600">
-                Your data is safe with us. Enterprise-grade security and 99.9% uptime guarantee.
-              </p>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
-              <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mb-4">
-                <Star className="w-6 h-6 text-white" />
-              </div>
-              <Link
-                to={ROUTES.dashboardProductNew}
-                className="inline-flex items-center rounded-2xl border border-white/30 px-6 py-3 text-sm font-semibold text-white"
-              >
-                Flow testen
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm h-full flex flex-col gap-3">
-              <div className="w-12 h-12 bg-gradient-success rounded-lg flex items-center justify-center mb-4">
-                <Check className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">Easy Integration</h3>
-              <p className="text-gray-600">
-                Connect with popular marketplaces and tools. Import your existing data in minutes.
-              </p>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <h3 className="text-2xl font-semibold">Verification & compliance</h3>
+              <p className="mt-2 text-white/70">Supabase email verification, 2FA and passwordless magic links ab Werk.</p>
+              <ul className="mt-6 space-y-3 text-sm text-white/70">
+                <li className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-primary-300" />SOC2-ready infrastructure</li>
+                <li className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary-300" />Audit-ready exports</li>
+                <li className="flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary-300" />Realtime reporting</li>
+              </ul>
             </div>
           </div>
         </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-16 sm:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Trusted by Successful Resellers
-            </h2>
-            <p className="text-xl text-gray-600">
-              Join thousands of resellers who have transformed their business with ResellTrack Pro
-            </p>
-          </div>
-          <div className="mt-10 grid gap-6 md:grid-cols-2">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={feature.title}
-                  whileHover={{ y: -4 }}
-                  className="rounded-[28px] border border-white/10 bg-white/5 p-6"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="rounded-2xl bg-white/10 p-3">
-                      <Icon className="h-6 w-6 text-white" />
+        <section id="features" className="border-b border-white/5 bg-slate-900/40 py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/50">Power modules</p>
+              <h2 className="mt-4 text-3xl font-semibold">Ship faster with a full operator stack</h2>
+              <p className="mt-3 text-white/70">Drag-and-drop dashboards, live automations and API hooks help teams ship within minutes.</p>
+            </div>
+            <div className="mt-12 grid gap-6 md:grid-cols-2">
+              {features.map((feature) => (
+                <div key={feature.title} className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-soft">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                      <feature.icon className="h-6 w-6 text-primary-200" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-white">{feature.title}</h3>
-                      <p className="text-sm text-slate-200">{feature.description}</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-white/50">{feature.badge}</p>
+                      <h3 className="text-xl font-semibold">{feature.title}</h3>
                     </div>
                   </div>
-                </motion.div>
-              );
-            })}
+                  <p className="mt-4 text-white/70">{feature.description}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Testimonial 1 */}
-            <div className="card-hover p-6 bg-gray-50 rounded-2xl shadow-sm h-full flex flex-col">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                ))}
+        <section id="pricing" className="border-b border-white/5 bg-slate-950/80 py-20">
+          <div className="mx-auto max-w-5xl px-6 text-center">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/50">Pricing</p>
+            <h2 className="mt-4 text-3xl font-semibold">Start for free. Upgrade when your flow scales.</h2>
+            <div className="mt-10 grid gap-6 md:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-left">
+                <p className="text-sm font-semibold text-success-300">Starter</p>
+                <p className="mt-2 text-4xl font-semibold">€0</p>
+                <p className="text-white/70">All core features, email verification, Discord login for 1 workspace.</p>
+                <ul className="mt-6 space-y-3 text-sm text-white/70">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success-400" />Inventory board & CRM</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success-400" />Supabase auth & verification</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-success-400" />3 connected Discord accounts</li>
+                </ul>
               </div>
-              <p className="text-gray-600 mb-4">
-                "ResellTrack Pro has completely transformed my reselling business. I've increased my profits by 40% in just 3 months!"
-              </p>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold">JD</span>
-                </div>
-                <div className="ml-3">
-                  <div className="font-semibold text-gray-900">John Doe</div>
-                  <div className="text-sm text-gray-600">Tech Reseller</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Testimonial 2 */}
-            <div className="card-hover p-6 bg-gray-50 rounded-2xl shadow-sm h-full flex flex-col">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-600 mb-4">
-                "The inventory tracking feature is a game-changer. I never lose track of my products anymore."
-              </p>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-success rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold">SM</span>
-                </div>
-                <div className="ml-3">
-                  <div className="font-semibold text-gray-900">Sarah Miller</div>
-                  <div className="text-sm text-gray-600">Fashion Reseller</div>
-                </div>
+              <div className="rounded-3xl border border-primary-300/40 bg-gradient-to-br from-primary-500/20 to-success-500/20 p-8 text-left shadow-glow">
+                <p className="text-sm font-semibold text-primary-100">Pro</p>
+                <p className="mt-2 text-4xl font-semibold">€89</p>
+                <p className="text-white/80">Unlimited pipelines, advanced automations, dedicated success.</p>
+                <ul className="mt-6 space-y-3 text-sm text-white">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary-200" />Unlimited Discord SSO seats</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary-200" />Revenue & tax dashboards</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary-200" />Premium support & onboarding</li>
+                </ul>
               </div>
             </div>
-
-            {/* Testimonial 3 */}
-            <div className="card-hover p-6 bg-gray-50 rounded-2xl shadow-sm h-full flex flex-col">
-              <div className="flex items-center mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                ))}
-              </div>
-              <p className="text-gray-600 mb-4">
-                "Best investment I've made for my business. The analytics help me make better decisions every day."
-              </p>
-              <div className="flex items-center">
-                <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
-                  <span className="text-white font-semibold">MC</span>
-                </div>
-                <div className="ml-3">
-                  <div className="font-semibold text-gray-900">Mike Chen</div>
-                  <div className="text-sm text-gray-600">Electronics Reseller</div>
-                </div>
-              </div>
-            ))}
           </div>
         </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-16 sm:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="text-xl text-gray-600">
-              Choose the plan that's right for your business. Start free, upgrade anytime.
-            </p>
+        <section id="trust" className="bg-slate-900/60 py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="text-center">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/50">Operational coverage</p>
+              <h2 className="mt-4 text-3xl font-semibold">Nur Features, die heute live sind</h2>
+              <p className="mt-3 text-white/70">Von Auth über Inventar bis Meetings – alles basiert auf Supabase und Discord Login.</p>
+            </div>
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {trustSignals.map((signal) => (
+                <div key={signal.title} className="rounded-3xl border border-white/10 bg-white/5 p-6 text-white/80 shadow-soft">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                      <signal.icon className="h-6 w-6 text-primary-200" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-white">{signal.title}</h3>
+                  </div>
+                  <p className="mt-4 text-sm text-white/70">{signal.description}</p>
+                </div>
+              ))}
+            </div>
           </div>
+        </section>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Starter Plan */}
-            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm flex flex-col">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Starter</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-1">Free</div>
-                <div className="text-gray-600">Perfect for beginners</div>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Up to 50 products
-                </li>
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Basic analytics
-                </li>
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Customer management
-                </li>
-              </ul>
-              <button className="w-full btn-secondary">
-                Get Started Free
-              </button>
+        <section className="border-t border-white/5 bg-gradient-to-r from-primary-600 to-primary-400 py-16">
+          <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 px-6 text-center text-white">
+            <p className="text-sm uppercase tracking-[0.4em] text-white/70">Ready?</p>
+            <h2 className="text-3xl font-semibold">Bring every resale workflow into one premium dashboard.</h2>
+            <p className="text-white/80">Live Supabase authentication, Discord logins und komplett überarbeitetes UI warten auf dich.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to={ROUTES.auth} className="inline-flex items-center gap-3 rounded-2xl bg-white px-7 py-4 text-lg font-semibold text-slate-900 shadow-strong">
+                Start building
+                <ArrowRight className="h-5 w-5" />
+              </Link>
+              <Link to={ROUTES.demo} className="inline-flex items-center gap-3 rounded-2xl border border-white/40 px-7 py-4 text-lg font-semibold text-white">
+                Explore demo
+              </Link>
             </div>
-
-            {/* Professional Plan */}
-            <div className="card-hover p-6 bg-white border-2 border-primary-500 rounded-2xl shadow-lg relative flex flex-col">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-gradient-primary text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Most Popular
-                </span>
-              </div>
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Professional</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-1">$29</div>
-                <div className="text-gray-600">per month</div>
-              </div>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Up to 500 products
-                </li>
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Advanced analytics
-                </li>
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Priority support
-                </li>
-                <li className="flex items-center text-gray-600">
-                  <Check className="w-5 h-5 text-success-500 mr-3" />
-                  Integration support
-                </li>
-              </ul>
-              <button className="w-full btn-primary">
-                Start Free Trial
-              </button>
-            </div>
-
-            {/* Enterprise Plan */}
-            <div className="card-hover p-6 bg-white rounded-2xl shadow-sm flex flex-col">
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Enterprise</h3>
-                <div className="text-4xl font-bold text-gray-900 mb-1">$99</div>
-                <div className="text-gray-600">per month</div>
-              </div>
-            ))}
           </div>
         </section>
       </main>
-
-      {/* CTA Section */}
-      <section className="py-16 sm:py-24 bg-gradient-primary">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">
-            Ready to Transform Your Reselling Business?
-          </h2>
-          <p className="text-xl text-white opacity-90 mb-8">
-            Join thousands of successful resellers who trust ResellTrack Pro to grow their business.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to={ROUTES.auth} className="btn-primary text-lg px-8 py-4 bg-white text-primary-500 hover:bg-gray-100">
-              Start Free Trial
-            </Link>
-            <Link to={ROUTES.demo} className="btn-outline-white text-lg px-8 py-4 text-center">
-              Schedule Demo
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">RT</span>
-                </div>
-                <h3 className="text-lg font-bold">ResellTrack Pro</h3>
-              </div>
-              <p className="text-gray-400">
-                The all-in-one platform for resellers to track inventory, manage customers, and grow their business.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#features" className="hover:text-white">Features</a></li>
-                <li><a href="#pricing" className="hover:text-white">Pricing</a></li>
-                <li><a href="#" className="hover:text-white">Integrations</a></li>
-                <li><a href="#" className="hover:text-white">API</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">About</a></li>
-                <li><a href="#" className="hover:text-white">Blog</a></li>
-                <li><a href="#" className="hover:text-white">Careers</a></li>
-                <li><a href="#" className="hover:text-white">Contact</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Support</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white">Help Center</a></li>
-                <li><a href="#" className="hover:text-white">Documentation</a></li>
-                <li><a href="#" className="hover:text-white">Privacy</a></li>
-                <li><a href="#" className="hover:text-white">Terms</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 ResellTrack Pro. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
-  );
+  )
 }
